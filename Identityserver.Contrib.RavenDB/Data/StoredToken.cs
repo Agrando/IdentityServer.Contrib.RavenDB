@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using IdentityServer3.Core.Models;
+using IdentityServer3.Core.Services;
 using Raven.Client;
 
 namespace Identityserver.Contrib.RavenDB.Data
@@ -52,12 +53,12 @@ namespace Identityserver.Contrib.RavenDB.Data
             };
         }
 
-        internal static Token FromDbFormat(StoredToken token, IAsyncDocumentSession s)
+        internal static async Task<Token> FromDbFormat(StoredToken token, IClientStore clientStore)
         {
             return new Token
             {
                 Audience = token.Audience,
-                Client = StoredClient.FromDbFormat(s.LoadAsync<Data.StoredClient>("clients/" + token.Client).Result),
+                Client = await clientStore.FindClientByIdAsync(token.Client),
                 Type = token.Type,
                 CreationTime = token.CreationTime,
                 Issuer = token.Issuer,

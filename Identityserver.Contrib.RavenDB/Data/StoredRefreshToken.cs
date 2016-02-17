@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using IdentityServer3.Core.Models;
+using IdentityServer3.Core.Services;
 using Raven.Client;
 
 namespace Identityserver.Contrib.RavenDB.Data
@@ -44,14 +45,14 @@ namespace Identityserver.Contrib.RavenDB.Data
             };
         }
 
-        internal static RefreshToken FromDbFormat(StoredRefreshToken token, IAsyncDocumentSession s)
+        internal static async Task<RefreshToken> FromDbFormat(StoredRefreshToken token, IClientStore clientStore)
         {
             return new RefreshToken
             {
                 CreationTime = token.CreationTime,
                 LifeTime = token.LifeTime,
                 Version = token.Version,
-                AccessToken = Data.StoredToken.FromDbFormat(token.AccessToken, s)
+                AccessToken = await Data.StoredToken.FromDbFormat(token.AccessToken, clientStore)
             };
         }
     }

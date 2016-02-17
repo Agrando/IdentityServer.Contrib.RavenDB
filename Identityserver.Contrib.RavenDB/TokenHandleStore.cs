@@ -12,9 +12,11 @@ namespace Identityserver.Contrib.RavenDB
     public class TokenHandleStore : ITokenHandleStore
     {
         private readonly IDocumentStore _store;
-        public TokenHandleStore(IDocumentStore store)
+        private readonly IClientStore _clientStore;
+        public TokenHandleStore(IDocumentStore store, IClientStore clientStore)
         {
             _store = store;
+            _clientStore = clientStore;
         }
 
         public async Task StoreAsync(string key, Token value)
@@ -36,7 +38,7 @@ namespace Identityserver.Contrib.RavenDB
                 if (loaded == null)
                     return null;
 
-                return Data.StoredToken.FromDbFormat(loaded, s);
+                return await Data.StoredToken.FromDbFormat(loaded, _clientStore);
             }
         }
 
@@ -61,7 +63,7 @@ namespace Identityserver.Contrib.RavenDB
                 while (await streamer.MoveNextAsync())
                 {
                     var thisOne = streamer.Current.Document;
-                    result.Add(Data.StoredToken.FromDbFormat(thisOne, s));
+                    result.Add(await Data.StoredToken.FromDbFormat(thisOne, _clientStore));
                 }
             }
 

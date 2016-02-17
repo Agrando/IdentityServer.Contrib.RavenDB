@@ -37,7 +37,7 @@ namespace Identityserver.Contrib.RavenDB
                 if (loaded == null)
                     return null;
 
-                return Data.StoredAuthorizationCode.FromDbFormat(loaded, s, _scopeStore);
+                return await Data.StoredAuthorizationCode.FromDbFormat(loaded, s, _scopeStore);
             }
         }
 
@@ -62,7 +62,7 @@ namespace Identityserver.Contrib.RavenDB
                 while (await streamer.MoveNextAsync())
                 {
                     var thisOne = streamer.Current.Document;
-                    result.Add(Data.StoredAuthorizationCode.FromDbFormat(thisOne, s, _scopeStore));
+                    result.Add(await Data.StoredAuthorizationCode.FromDbFormat(thisOne, s, _scopeStore));
                 }
             }
 

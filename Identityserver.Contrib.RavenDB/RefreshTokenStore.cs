@@ -13,10 +13,12 @@ namespace Identityserver.Contrib.RavenDB
     public class RefreshTokenStore : IRefreshTokenStore
     {
         private readonly IDocumentStore _store;
+        private readonly IClientStore _clientStore;
 
-        public RefreshTokenStore(IDocumentStore store)
+        public RefreshTokenStore(IDocumentStore store, IClientStore clientStore)
         {
             _store = store;
+            _clientStore = clientStore;
         }
 
         public async Task StoreAsync(string key, RefreshToken value)
@@ -37,7 +39,7 @@ namespace Identityserver.Contrib.RavenDB
                 if (loaded == null)
                     return null;
 
-                return Data.StoredRefreshToken.FromDbFormat(loaded, s);
+                return await Data.StoredRefreshToken.FromDbFormat(loaded, _clientStore);
             }
         }
 
@@ -62,7 +64,7 @@ namespace Identityserver.Contrib.RavenDB
                 while (await streamer.MoveNextAsync())
                 {
                     var thisOne = streamer.Current.Document;
-                    result.Add(Data.StoredRefreshToken.FromDbFormat(thisOne, s));
+                    result.Add(await Data.StoredRefreshToken.FromDbFormat(thisOne, _clientStore));
                 }
             }
 
