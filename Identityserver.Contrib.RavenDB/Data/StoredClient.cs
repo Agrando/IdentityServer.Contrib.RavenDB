@@ -146,11 +146,11 @@ namespace Identityserver.Contrib.RavenDB.Data
             };
         }
 
-        internal static StoredClient ToDbFormat(Client client)
+        public static StoredClient ToDbFormat(Client client)
         {
             return new StoredClient
             {
-                Id = "clients" + client.ClientId,
+                Id = "clients/" + client.ClientId,
                 ClientId = client.ClientId,
                 Enabled = client.Enabled,
                 AbsoluteRefreshTokenLifetime = client.AbsoluteRefreshTokenLifetime,

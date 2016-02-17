@@ -5,15 +5,16 @@ using System.Text;
 using System.Threading.Tasks;
 using IdentityServer3.Core.Models;
 using IdentityServer3.Core.Services;
+using Raven.Client;
 using Raven.Client.Document;
 
 namespace Identityserver.Contrib.RavenDB
 {
     public class RefreshTokenStore : IRefreshTokenStore
     {
-        private readonly DocumentStore _store;
+        private readonly IDocumentStore _store;
 
-        public RefreshTokenStore(DocumentStore store)
+        public RefreshTokenStore(IDocumentStore store)
         {
             _store = store;
         }

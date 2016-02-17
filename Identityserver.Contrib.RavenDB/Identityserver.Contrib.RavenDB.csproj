@@ -60,16 +60,24 @@
     <Compile Include="AuthorizationCodeStore.cs" />
     <Compile Include="ConsentStore.cs" />
     <Compile Include="ClientStore.cs" />
+    <Compile Include="Data\StoredAuthorizationCode.cs" />
     <Compile Include="Data\StoredClient.cs" />
     <Compile Include="Data\StoredConsent.cs" />
+    <Compile Include="Data\StoredIdentity.cs" />
     <Compile Include="Data\StoredRefreshToken.cs" />
     <Compile Include="Data\StoredScope.cs" />
     <Compile Include="Data\StoredToken.cs" />
+    <Compile Include="Extensions\RavenDbServiceFactoryExtensions.cs" />
+    <Compile Include="Indexes\AuthorizationCodeIndex.cs" />
+    <Compile Include="Indexes\CorsIndex.cs" />
     <Compile Include="Indexes\RefreshTokenIndex.cs" />
     <Compile Include="Indexes\TokenIndex.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RavenDbServiceOptions.cs" />
     <Compile Include="RefreshTokenStore.cs" />
+    <Compile Include="Registrations\ClientConfigurationCorsPolicyRegistration.cs" />
     <Compile Include="ScopeStore.cs" />
+    <Compile Include="Services\ClientConfigurationCorsPolicyService.cs" />
     <Compile Include="TokenHandleStore.cs" />
   </ItemGroup>
   <ItemGroup>

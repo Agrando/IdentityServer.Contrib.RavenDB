@@ -100,7 +100,7 @@ namespace Identityserver.Contrib.RavenDB.Data
         public string Type { get; set; }
 
 
-        internal static StoredScope ToDbFormat(Scope scope)
+        public static StoredScope ToDbFormat(Scope scope)
         {
             return new StoredScope
             {
