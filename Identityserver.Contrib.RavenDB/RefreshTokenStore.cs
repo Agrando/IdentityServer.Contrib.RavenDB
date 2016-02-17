@@ -79,7 +79,7 @@ namespace Identityserver.Contrib.RavenDB
                 var streamer = await s.Advanced.StreamAsync(q);
                 while (await streamer.MoveNextAsync())
                 {
-                    s.Delete(streamer.Current.Document);
+                    s.Delete(streamer.Current.Document.Id);
                 }
                 await s.SaveChangesAsync();
             }
