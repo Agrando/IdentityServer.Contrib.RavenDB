@@ -12,23 +12,27 @@ namespace WebHost.Config
 {
     class Factory
     {
+        private static RavenDbServiceOptions _ravenConfig = null;
+
         public static IdentityServerServiceFactory Configure()
         {
-            var efConfig = new RavenDbServiceOptions("Raven");
+            _ravenConfig = new RavenDbServiceOptions("Raven");
 
             // these two calls just pre-populate the test DB from the in-memory config
-            ConfigureClients(Clients.Get(), efConfig);
-            ConfigureScopes(Scopes.Get(), efConfig);
+            ConfigureClients(Clients.Get(), _ravenConfig);
+            ConfigureScopes(Scopes.Get(), _ravenConfig);
 
             var factory = new IdentityServerServiceFactory();
 
-            factory.RegisterConfigurationServices(efConfig);
-            factory.RegisterOperationalServices(efConfig);
+            factory.RegisterConfigurationServices(_ravenConfig);
+            factory.RegisterOperationalServices(_ravenConfig);
 
             factory.UseInMemoryUsers(Users.Get());
 
             return factory;
         }
+
+        internal static RavenDbServiceOptions RavenConfig { get { return _ravenConfig; } }
 
         public static void ConfigureClients(IEnumerable<Client> clients, RavenDbServiceOptions options)
         {

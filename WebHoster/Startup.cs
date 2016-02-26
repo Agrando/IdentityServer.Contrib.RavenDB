@@ -1,4 +1,8 @@
-﻿using IdentityServer3.Core.Configuration;
+﻿using System.Collections.Generic;
+using IdentityAdmin.Configuration;
+using IdentityAdmin.Core;
+using Identityserver.Contrib.RavenDB.Services;
+using IdentityServer3.Core.Configuration;
 using IdentityServer3.Core.Logging;
 using Microsoft.Owin;
 using Owin;
@@ -30,6 +34,22 @@ namespace WebHoster
                 {
                     coreApp.UseIdentityServer(options);
                 });
+
+            var adminFactory = new IdentityAdminServiceFactory
+            {
+                IdentityAdminService = new IdentityAdmin.Configuration.Registration<IIdentityAdminService>(new IdentityAdminService(Factory.RavenConfig.Store))
+            };
+
+            var adminOptions = new IdentityAdminOptions
+            {
+                Factory = adminFactory
+            };
+            adminOptions.AdminSecurityConfiguration.RequireSsl = false;
+
+            app.Map("/admin", adminApp =>
+            {
+                adminApp.UseIdentityAdmin(adminOptions);
+            });
         }
     }
 }
