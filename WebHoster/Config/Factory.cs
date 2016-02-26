@@ -18,6 +18,9 @@ namespace WebHost.Config
         {
             _ravenConfig = new RavenDbServiceOptions("Raven");
 
+            var cleanup = new TokenCleanup(_ravenConfig, 30);
+            cleanup.Start();
+
             // these two calls just pre-populate the test DB from the in-memory config
             ConfigureClients(Clients.Get(), _ravenConfig);
             ConfigureScopes(Scopes.Get(), _ravenConfig);

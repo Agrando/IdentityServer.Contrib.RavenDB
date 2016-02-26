@@ -108,7 +108,7 @@ namespace Identityserver.Contrib.RavenDB.Services
             using (var s = _store.OpenAsyncSession())
             {
                 RavenQueryStatistics stat;
-                var q = s.Query<Data.StoredScope>().Statistics(out stat).Take(count).Skip(start);
+                var q = s.Query<Data.StoredScope, Indexes.AdminScopeQuery>().Statistics(out stat).Take(count).Skip(start);
                 if (string.IsNullOrWhiteSpace(filter) == false)
                 {
                     q = q.Where(x => x.Name.StartsWith(filter));
@@ -637,7 +637,7 @@ namespace Identityserver.Contrib.RavenDB.Services
             using (var s = _store.OpenAsyncSession())
             {
                 RavenQueryStatistics stat;
-                var q = s.Query<Data.StoredClient>().Statistics(out stat).Take(count).Skip(start);
+                var q = s.Query<Data.StoredClient, Indexes.AdminClientQuery>().Statistics(out stat).Take(count).Skip(start);
                 if (string.IsNullOrWhiteSpace(filter) == false)
                 {
                     q = q.Where(x => x.ClientName.StartsWith(filter));
