@@ -26,7 +26,7 @@ namespace Identityserver.Contrib.RavenDB
                 var ids = from scopeName in scopeNames select "scopes/" + scopeName;
                 var storedScopes = await s.LoadAsync<Data.StoredScope>(ids);
 
-                foreach (var scope in storedScopes)
+                foreach (var scope in storedScopes.Where(x=>x!= null))
                 {
                     result.Add(Data.StoredScope.FromDbFormat(scope));
                 }

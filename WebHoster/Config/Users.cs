@@ -22,9 +22,11 @@ namespace WebHost.Config
                 new InMemoryUser{Subject = "bob", Username = "bob", Password = "bob",
                     Claims = new Claim[]
                     {
+                        new Claim(Constants.ClaimTypes.Name, "Bob Smith"),
                         new Claim(Constants.ClaimTypes.GivenName, "Bob"),
                         new Claim(Constants.ClaimTypes.FamilyName, "Smith"),
                         new Claim(Constants.ClaimTypes.Email, "BobSmith@email.com"),
+                        new Claim(Constants.ClaimTypes.Role, "IdentityAdminAdministrator"),
                     }
                 },
             };

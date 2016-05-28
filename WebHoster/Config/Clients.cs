@@ -318,6 +318,25 @@ namespace WebHost.Config
 
                     RefreshTokenUsage = TokenUsage.OneTimeOnly,
                     RefreshTokenExpiration = TokenExpiration.Sliding
+                },
+                new Client
+                {
+                    ClientId = "idAdmin",
+                    ClientName = "IdentityServerAdmin",
+                    AllowedScopes = new List<string>
+                    {
+                        "openid",
+                        "idAdmin"
+                    },
+                   Enabled = true,
+                    Flow = Flows.Implicit,
+                    RequireConsent = false,
+                    RedirectUris = new List<string>{
+                        "http://localhost:9921",
+                    },
+                    PostLogoutRedirectUris = new List<string>{
+                        "http://localhost:9921/admin"
+                    },
                 }
             };
         }

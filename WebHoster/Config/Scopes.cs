@@ -33,6 +33,18 @@ namespace WebHost.Config
                         new Secret("secret".Sha256())
                     }
                 },
+                new Scope
+                {
+                    Name = "idAdmin",
+                    DisplayName = "IdentityAdmin",
+                    Description = "Authorization for IdentityAdmin",
+                    Type = ScopeType.Identity,
+                    Claims = new List<ScopeClaim>
+                    {
+                        new ScopeClaim(Constants.ClaimTypes.Name),
+                        new ScopeClaim(Constants.ClaimTypes.Role)
+                    }
+                }
              };
         }
     }
