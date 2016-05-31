@@ -92,13 +92,14 @@ namespace Identityserver.Contrib.RavenDB.Services
                     Description = loaded.Description,
                     Name = loaded.Name,
                     Properties = props.ToArray(),
-                    ScopeClaimValues = loaded.Claims == null ? new List<ScopeClaimValue>() : (from sc in loaded.Claims select new ScopeClaimValue
-                        {
-                            AlwaysIncludeInIdToken = sc.AlwaysIncludeInIdToken,
-                            Description = sc.Description,
-                            Name = sc.Name,
-                            Id = sc.Name
-                        })
+                    ScopeClaimValues = loaded.Claims == null ? new List<ScopeClaimValue>() : (from sc in loaded.Claims
+                                                                                              select new ScopeClaimValue
+                                                                                              {
+                                                                                                  AlwaysIncludeInIdToken = sc.AlwaysIncludeInIdToken,
+                                                                                                  Description = sc.Description,
+                                                                                                  Name = sc.Name,
+                                                                                                  Id = sc.Name
+                                                                                              })
                 });
             }
         }
@@ -115,12 +116,12 @@ namespace Identityserver.Contrib.RavenDB.Services
                 }
 
                 var items = from sc in await q.ToListAsync()
-                    select new ScopeSummary
-                    {
-                        Name = sc.Name,
-                        Description = sc.Description,
-                        Subject = sc.Id.Replace("scopes/", "")
-                    };
+                            select new ScopeSummary
+                            {
+                                Name = sc.Name,
+                                Description = sc.Description,
+                                Subject = sc.Id.Replace("scopes/", "")
+                            };
 
                 return new IdentityAdminResult<QueryResult<ScopeSummary>>(new QueryResult<ScopeSummary>
                 {
@@ -204,6 +205,9 @@ namespace Identityserver.Contrib.RavenDB.Services
                 if (loaded == null)
                     return new IdentityAdminResult("Invalid subject");
 
+                if (loaded.Claims == null)
+                    loaded.Claims = new List<StoredScopeClaim>();
+
                 var found = loaded.Claims.FirstOrDefault(x => x.Name == name);
                 if (found == null)
                 {
@@ -263,16 +267,16 @@ namespace Identityserver.Contrib.RavenDB.Services
                 return new IdentityAdminResult<ClientDetail>(new ClientDetail
                 {
                     Subject = subject,
-                    AllowedCorsOrigins = loaded.AllowedCorsOrigins == null ? new List<ClientCorsOriginValue>() : (from c in loaded.AllowedCorsOrigins select new ClientCorsOriginValue { Id = c,Origin = c}).ToList(),
+                    AllowedCorsOrigins = loaded.AllowedCorsOrigins == null ? new List<ClientCorsOriginValue>() : (from c in loaded.AllowedCorsOrigins select new ClientCorsOriginValue { Id = c, Origin = c }).ToList(),
                     ClientId = loaded.ClientId,
                     ClientName = loaded.ClientName,
-                    AllowedCustomGrantTypes = loaded.AllowedCustomGrantTypes == null ? new List<ClientCustomGrantTypeValue>() : (from c in loaded.AllowedCustomGrantTypes select new ClientCustomGrantTypeValue { GrantType = c, Id = c}).ToList(),
-                    Claims = loaded.Claims == null ? new List<ClientClaimValue>() : (from c in loaded.Claims select new ClientClaimValue { Id = c.Type + c.Value, Type = c.Type, Value = c.Value}).ToList(),
-                    ClientSecrets = loaded.ClientSecrets == null ? new List<ClientSecretValue>() : (from c in loaded.ClientSecrets select new ClientSecretValue { Id = c.Type + c.Value, Type = c.Type, Value = c.Value}).ToList(),
-                    RedirectUris = loaded.RedirectUris == null ? new List<ClientRedirectUriValue>() : (from c in loaded.RedirectUris select new ClientRedirectUriValue { Id = c, Uri = c}).ToList(),
-                    AllowedScopes = loaded.AllowedScopes == null ? new List<ClientScopeValue>() : (from c in loaded.AllowedScopes select new ClientScopeValue { Id = c, Scope = c}).ToList(),
-                    PostLogoutRedirectUris = loaded.PostLogoutRedirectUris == null ? new List<ClientPostLogoutRedirectUriValue>() : (from c in loaded.PostLogoutRedirectUris select new ClientPostLogoutRedirectUriValue { Id = c, Uri = c}).ToList(),
-                    IdentityProviderRestrictions = loaded.IdentityProviderRestrictions == null ? new List<ClientIdPRestrictionValue>() : (from c in loaded.IdentityProviderRestrictions select new ClientIdPRestrictionValue { Id = c, Provider = c}).ToList(),
+                    AllowedCustomGrantTypes = loaded.AllowedCustomGrantTypes == null ? new List<ClientCustomGrantTypeValue>() : (from c in loaded.AllowedCustomGrantTypes select new ClientCustomGrantTypeValue { GrantType = c, Id = c }).ToList(),
+                    Claims = loaded.Claims == null ? new List<ClientClaimValue>() : (from c in loaded.Claims select new ClientClaimValue { Id = c.Type + c.Value, Type = c.Type, Value = c.Value }).ToList(),
+                    ClientSecrets = loaded.ClientSecrets == null ? new List<ClientSecretValue>() : (from c in loaded.ClientSecrets select new ClientSecretValue { Id = c.Type + c.Value, Type = c.Type, Value = c.Value }).ToList(),
+                    RedirectUris = loaded.RedirectUris == null ? new List<ClientRedirectUriValue>() : (from c in loaded.RedirectUris select new ClientRedirectUriValue { Id = c, Uri = c }).ToList(),
+                    AllowedScopes = loaded.AllowedScopes == null ? new List<ClientScopeValue>() : (from c in loaded.AllowedScopes select new ClientScopeValue { Id = c, Scope = c }).ToList(),
+                    PostLogoutRedirectUris = loaded.PostLogoutRedirectUris == null ? new List<ClientPostLogoutRedirectUriValue>() : (from c in loaded.PostLogoutRedirectUris select new ClientPostLogoutRedirectUriValue { Id = c, Uri = c }).ToList(),
+                    IdentityProviderRestrictions = loaded.IdentityProviderRestrictions == null ? new List<ClientIdPRestrictionValue>() : (from c in loaded.IdentityProviderRestrictions select new ClientIdPRestrictionValue { Id = c, Provider = c }).ToList(),
                     Properties = props.ToArray()
                 });
             }
@@ -296,6 +300,9 @@ namespace Identityserver.Contrib.RavenDB.Services
 
                 if (loaded == null)
                     return new IdentityAdminResult("Invalid subject");
+
+                if (loaded.Claims == null)
+                    loaded.Claims = new List<StoredClientClaim>();
 
                 var found = loaded.Claims.FirstOrDefault(x => x.Type == type && x.Value == value);
                 if (found == null)
@@ -343,6 +350,9 @@ namespace Identityserver.Contrib.RavenDB.Services
                 if (loaded == null)
                     return new IdentityAdminResult("Invalid subject");
 
+                if (loaded.ClientSecrets == null)
+                    loaded.ClientSecrets = new List<StoredSecret>();
+
                 var found = loaded.ClientSecrets.FirstOrDefault(x => x.Value == value);
                 if (found == null)
                 {
@@ -389,6 +399,9 @@ namespace Identityserver.Contrib.RavenDB.Services
                 if (loaded == null)
                     return new IdentityAdminResult("Invalid subject");
 
+                if (loaded.IdentityProviderRestrictions == null)
+                    loaded.IdentityProviderRestrictions = new List<string>();
+
                 var found = loaded.IdentityProviderRestrictions.FirstOrDefault(x => x == provider);
                 if (found == null)
                 {
@@ -430,6 +443,9 @@ namespace Identityserver.Contrib.RavenDB.Services
 
                 if (loaded == null)
                     return new IdentityAdminResult("Invalid subject");
+
+                if (loaded.PostLogoutRedirectUris == null)
+                    loaded.PostLogoutRedirectUris = new List<string>();
 
                 var found = loaded.PostLogoutRedirectUris.FirstOrDefault(x => x == uri);
                 if (found == null)
@@ -473,6 +489,9 @@ namespace Identityserver.Contrib.RavenDB.Services
                 if (loaded == null)
                     return new IdentityAdminResult("Invalid subject");
 
+                if (loaded.RedirectUris == null)
+                    loaded.RedirectUris = new List<string>();
+
                 var found = loaded.RedirectUris.FirstOrDefault(x => x == uri);
                 if (found == null)
                 {
@@ -514,6 +533,9 @@ namespace Identityserver.Contrib.RavenDB.Services
 
                 if (loaded == null)
                     return new IdentityAdminResult("Invalid subject");
+
+                if (loaded.AllowedCorsOrigins == null)
+                    loaded.AllowedCorsOrigins = new List<string>();
 
                 var found = loaded.AllowedCorsOrigins.FirstOrDefault(x => x == origin);
                 if (found == null)
@@ -557,6 +579,9 @@ namespace Identityserver.Contrib.RavenDB.Services
                 if (loaded == null)
                     return new IdentityAdminResult("Invalid subject");
 
+                if (loaded.AllowedCustomGrantTypes == null)
+                    loaded.AllowedCustomGrantTypes = new List<string>();
+
                 var found = loaded.AllowedCustomGrantTypes.FirstOrDefault(x => x == grantType);
                 if (found == null)
                 {
@@ -598,6 +623,9 @@ namespace Identityserver.Contrib.RavenDB.Services
 
                 if (loaded == null)
                     return new IdentityAdminResult("Invalid subject");
+
+                if (loaded.AllowedScopes == null)
+                    loaded.AllowedScopes = new List<string>();
 
                 var found = loaded.AllowedScopes.FirstOrDefault(x => x == scope);
                 if (found == null)
@@ -652,12 +680,12 @@ namespace Identityserver.Contrib.RavenDB.Services
                     Start = start,
                     Total = stat.TotalResults,
                     Items = from c in items
-                        select new ClientSummary
-                        {
-                            ClientId = c.ClientId,
-                            ClientName = c.ClientName,
-                            Subject = c.Id.Replace("clients/", "")
-                        }
+                            select new ClientSummary
+                            {
+                                ClientId = c.ClientId,
+                                ClientName = c.ClientName,
+                                Subject = c.Id.Replace("clients/", "")
+                            }
                 });
             }
         }
@@ -703,7 +731,7 @@ namespace Identityserver.Contrib.RavenDB.Services
             {
                 var loaded = await s.LoadAsync<Data.StoredClient>("clients/" + subject);
 
-                if(loaded == null)
+                if (loaded == null)
                     return new IdentityAdminResult("Invalid subject");
 
                 var meta = await GetMetadataAsync();
