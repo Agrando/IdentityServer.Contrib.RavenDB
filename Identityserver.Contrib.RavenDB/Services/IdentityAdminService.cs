@@ -329,7 +329,7 @@ namespace Identityserver.Contrib.RavenDB.Services
                 if (loaded == null)
                     return new IdentityAdminResult("Invalid subject");
 
-                var found = loaded.Claims.FirstOrDefault(x => x.Value == id);
+                var found = loaded.Claims.FirstOrDefault(x => x.Type + x.Value == id);
                 if (found != null)
                 {
                     loaded.Claims.Remove(found);
@@ -356,11 +356,15 @@ namespace Identityserver.Contrib.RavenDB.Services
                 var found = loaded.ClientSecrets.FirstOrDefault(x => x.Value == value);
                 if (found == null)
                 {
+                    if (type == "SharedSecret")
+                        value = value.Sha256();
+
                     loaded.ClientSecrets.Add(new Data.StoredSecret
                     {
                         Type = type,
                         Value = value
                     });
+
                     await s.StoreAsync(loaded);
                     await s.SaveChangesAsync();
                 }
@@ -378,7 +382,7 @@ namespace Identityserver.Contrib.RavenDB.Services
                 if (loaded == null)
                     return new IdentityAdminResult("Invalid subject");
 
-                var found = loaded.ClientSecrets.FirstOrDefault(x => x.Value == id);
+                var found = loaded.ClientSecrets.FirstOrDefault(x => x.Type + x.Value == id);
                 if (found != null)
                 {
                     loaded.ClientSecrets.Remove(found);
