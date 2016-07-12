@@ -718,6 +718,20 @@ namespace Identityserver.Contrib.RavenDB.Services
                 }
             }
 
+            client.Enabled = true;
+            client.EnableLocalLogin = true;
+            client.RequireConsent = true;
+            client.Flow = Flows.Implicit.ToString();
+            client.AllowClientCredentialsOnly = false;
+            client.IdentityTokenLifetime = 300;
+            client.AccessTokenLifetime = 3600;
+            client.AuthorizationCodeLifetime = 300;
+            client.AbsoluteRefreshTokenLifetime = 300;
+            client.SlidingRefreshTokenLifetime = 1296000;
+            client.AccessTokenType = AccessTokenType.Jwt.ToString();
+            client.AlwaysSendClientClaims = false;
+            client.PrefixClientClaims = true;
+
             using (var s = _store.OpenAsyncSession())
             {
                 client.Id = "clients/" + clientId;
