@@ -809,6 +809,26 @@ namespace Identityserver.Contrib.RavenDB.Services
             throw new Exception("Invalid property type " + propMetadata.Type);
         }
 
+        public Task<IdentityAdminResult> AddScopeSecretAsync(string subject, string type, string value, string description, DateTime? expiration)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IdentityAdminResult> UpdateScopeSecret(string subject, string scopeSecretSubject, string type, string value, string description, DateTime? expiration)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IdentityAdminResult> RemoveScopeSecretAsync(string subject, string id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IdentityAdminResult> UpdateScopeClaim(string subject, string scopeClaimSubject, string name, string description, bool alwaysIncludeInIdToken)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
     }
 }
