@@ -45,26 +45,26 @@ namespace Identityserver.Contrib.RavenDB.Data
         public bool AllowAccessToAllScopes { get; set; }
         
         public bool AllowClientCredentialsOnly { get; set; }
-        
-        public List<string> AllowedCorsOrigins { get; set; }
-        
-        public List<string> AllowedCustomGrantTypes { get; set; }
-        
-        public List<string> AllowedScopes { get; set; }
+
+        public List<string> AllowedCorsOrigins { get; set; } = new List<string>();
+
+        public List<string> AllowedCustomGrantTypes { get; set; } = new List<string>();
+
+        public List<string> AllowedScopes { get; set; } = new List<string>();
         
         public bool AllowRememberConsent { get; set; }
         
         public bool AlwaysSendClientClaims { get; set; }
         
         public int AuthorizationCodeLifetime { get; set; }
-        
-        public List<StoredClientClaim> Claims { get; set; }
+
+        public List<StoredClientClaim> Claims { get; set; } = new List<StoredClientClaim>();
         
         public string ClientId { get; set; }
         
         public string ClientName { get; set; }
-        
-        public List<StoredSecret> ClientSecrets { get; set; }
+
+        public List<StoredSecret> ClientSecrets { get; set; } = new List<StoredSecret>();
         
         public string ClientUri { get; set; }
         
@@ -73,8 +73,8 @@ namespace Identityserver.Contrib.RavenDB.Data
         public bool EnableLocalLogin { get; set; }
         
         public string Flow { get; set; }
-        
-        public List<string> IdentityProviderRestrictions { get; set; }
+
+        public List<string> IdentityProviderRestrictions { get; set; } = new List<string>();
         
         public int IdentityTokenLifetime { get; set; }
         
@@ -85,12 +85,12 @@ namespace Identityserver.Contrib.RavenDB.Data
         public bool LogoutSessionRequired { get; set; }
         
         public string LogoutUri { get; set; }
-        
-        public List<string> PostLogoutRedirectUris { get; set; }
+
+        public List<string> PostLogoutRedirectUris { get; set; } = new List<string>();
         
         public bool PrefixClientClaims { get; set; }
-        
-        public List<string> RedirectUris { get; set; }
+
+        public List<string> RedirectUris { get; set; } = new List<string>();
         
         public string RefreshTokenExpiration { get; set; }
         

@@ -15,7 +15,7 @@ namespace Identityserver.Contrib.RavenDB.Data
 
         public string Audience { get; set; }
 
-        public List<StoredClientClaim> Claims { get; set; }
+        public List<StoredClientClaim> Claims { get; set; } = new List<StoredClientClaim>();
 
         public string ClientId { get; set; }
 

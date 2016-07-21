@@ -75,7 +75,7 @@ namespace Identityserver.Contrib.RavenDB.Data
 
         public bool AllowUnrestrictedIntrospection { get; set; }
 
-        public List<StoredScopeClaim> Claims { get; set; }
+        public List<StoredScopeClaim> Claims { get; set; } = new List<StoredScopeClaim>();
 
         public string ClaimsRule { get; set; }
 
@@ -93,7 +93,7 @@ namespace Identityserver.Contrib.RavenDB.Data
 
         public bool Required { get; set; }
 
-        public List<StoredSecret> ScopeSecrets { get; set; }
+        public List<StoredSecret> ScopeSecrets { get; set; } = new List<StoredSecret>();
 
         public bool ShowInDiscoveryDocument { get; set; }
 
