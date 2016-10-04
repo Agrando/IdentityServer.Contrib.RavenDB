@@ -356,9 +356,6 @@ namespace Identityserver.Contrib.RavenDB.Services
                 var found = loaded.ClientSecrets.FirstOrDefault(x => x.Value == value);
                 if (found == null)
                 {
-                    if (type == "SharedSecret")
-                        value = value.Sha256();
-
                     loaded.ClientSecrets.Add(new Data.StoredSecret
                     {
                         Type = type,
