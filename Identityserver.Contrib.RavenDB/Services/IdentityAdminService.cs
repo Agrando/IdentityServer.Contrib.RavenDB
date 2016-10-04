@@ -728,6 +728,8 @@ namespace Identityserver.Contrib.RavenDB.Services
             client.AccessTokenType = AccessTokenType.Jwt.ToString();
             client.AlwaysSendClientClaims = false;
             client.PrefixClientClaims = true;
+            client.RefreshTokenExpiration = "Sliding";
+            client.RefreshTokenUsage = "OneTimeOnly";
 
             using (var s = _store.OpenAsyncSession())
             {
