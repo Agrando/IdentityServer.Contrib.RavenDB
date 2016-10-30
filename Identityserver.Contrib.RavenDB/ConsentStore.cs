@@ -22,9 +22,10 @@ namespace Identityserver.Contrib.RavenDB
             var result = new List<Consent>();
 
             using (var s = _store.OpenAsyncSession())
+            using (s.Advanced.DocumentStore.AggressivelyCache())
             {
                 var items = await s.Advanced.StreamAsync<Data.StoredConsent>("consents/" + subject);
-                while(await items.MoveNextAsync())
+                while (await items.MoveNextAsync())
                 {
                     var thisOne = items.Current.Document;
                     result.Add(Data.StoredConsent.FromDbFormat(thisOne));
@@ -38,6 +39,7 @@ namespace Identityserver.Contrib.RavenDB
         {
             var id = "consents/" + subject + "/" + client;
             using (var s = _store.OpenAsyncSession())
+            using (s.Advanced.DocumentStore.AggressivelyCache())
             {
                 s.Delete(id);
                 await s.SaveChangesAsync();
@@ -48,6 +50,7 @@ namespace Identityserver.Contrib.RavenDB
         {
             var id = "consents/" + subject + "/" + client;
             using (var s = _store.OpenAsyncSession())
+            using (s.Advanced.DocumentStore.AggressivelyCache())
             {
                 var loaded = await s.LoadAsync<Data.StoredConsent>(id);
                 if (loaded == null)
@@ -60,6 +63,7 @@ namespace Identityserver.Contrib.RavenDB
         public async Task UpdateAsync(Consent consent)
         {
             using (var s = _store.OpenAsyncSession())
+            using (s.Advanced.DocumentStore.AggressivelyCache())
             {
                 var storedConsent = Data.StoredConsent.ToDbFormat(consent);
 

@@ -24,6 +24,7 @@ namespace Identityserver.Contrib.RavenDB
         public async Task StoreAsync(string key, RefreshToken value)
         {
             using (var s = _store.OpenAsyncSession())
+            using (s.Advanced.DocumentStore.AggressivelyCache())
             {
                 var toSave = Data.StoredRefreshToken.ToDbFormat(key, value);
                 await s.StoreAsync(toSave);
@@ -34,6 +35,7 @@ namespace Identityserver.Contrib.RavenDB
         public async Task<RefreshToken> GetAsync(string key)
         {
             using (var s = _store.OpenAsyncSession())
+            using (s.Advanced.DocumentStore.AggressivelyCache())
             {
                 var loaded = await s.LoadAsync<Data.StoredRefreshToken>("refreshtokens/" + key);
                 if (loaded == null)
@@ -46,6 +48,7 @@ namespace Identityserver.Contrib.RavenDB
         public async Task RemoveAsync(string key)
         {
             using (var s = _store.OpenAsyncSession())
+            using (s.Advanced.DocumentStore.AggressivelyCache())
             {
                 s.Delete("refreshtokens/" + key);
                 await s.SaveChangesAsync();
@@ -57,6 +60,7 @@ namespace Identityserver.Contrib.RavenDB
             var result = new List<ITokenMetadata>();
 
             using (var s = _store.OpenAsyncSession())
+            using (s.Advanced.DocumentStore.AggressivelyCache())
             {
                 var q = s.Query<Data.StoredRefreshToken, Indexes.RefreshTokenIndex>().Where(x => x.SubjectId == subject);
 
@@ -74,6 +78,7 @@ namespace Identityserver.Contrib.RavenDB
         public async Task RevokeAsync(string subject, string client)
         {
             using (var s = _store.OpenAsyncSession())
+            using (s.Advanced.DocumentStore.AggressivelyCache())
             {
                 var q = s.Query<Data.StoredRefreshToken, Indexes.RefreshTokenIndex>().Where(x => x.SubjectId == subject && x.ClientId == client);
                 var streamer = await s.Advanced.StreamAsync(q);

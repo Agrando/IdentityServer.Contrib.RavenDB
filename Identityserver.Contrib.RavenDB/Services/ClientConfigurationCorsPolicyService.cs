@@ -19,6 +19,7 @@ namespace Identityserver.Contrib.RavenDB.Services
         public async Task<bool> IsOriginAllowedAsync(string origin)
         {
             using (var s = _store.OpenAsyncSession())
+            using (s.Advanced.DocumentStore.AggressivelyCache())
             {
                 var q = s.Advanced.AsyncDocumentQuery<Data.StoredClient, Indexes.CorsIndex>().WhereEquals("AllowedOrigin", origin);
                 var count = q.CountLazilyAsync();

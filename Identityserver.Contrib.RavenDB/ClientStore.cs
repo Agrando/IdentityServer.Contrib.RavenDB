@@ -20,6 +20,7 @@ namespace Identityserver.Contrib.RavenDB
         public async Task<Client> FindClientByIdAsync(string clientId)
         {
             using (var s = _store.OpenAsyncSession())
+            using (s.Advanced.DocumentStore.AggressivelyCache())
             {
                 var loaded = await s.LoadAsync<Data.StoredClient>("clients/" + clientId);
                 if (loaded == null)

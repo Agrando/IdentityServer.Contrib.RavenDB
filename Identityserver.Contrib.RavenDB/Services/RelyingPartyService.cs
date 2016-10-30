@@ -20,6 +20,7 @@ namespace Identityserver.Contrib.RavenDB.Services
         public async Task<RelyingParty> GetByRealmAsync(string realm)
         {
             using (var s = _store.OpenAsyncSession())
+            using (s.Advanced.DocumentStore.AggressivelyCache())
             {
                 var rp = await s.LoadAsync<Data.StoredRelyingParty>("relyingparty/" + realm);
 

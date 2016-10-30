@@ -22,11 +22,12 @@ namespace Identityserver.Contrib.RavenDB
             var result = new List<Scope>();
 
             using (var s = _store.OpenAsyncSession())
+            using (s.Advanced.DocumentStore.AggressivelyCache())
             {
                 var ids = from scopeName in scopeNames select "scopes/" + scopeName;
                 var storedScopes = await s.LoadAsync<Data.StoredScope>(ids);
 
-                foreach (var scope in storedScopes.Where(x=>x!= null))
+                foreach (var scope in storedScopes.Where(x => x != null))
                 {
                     result.Add(Data.StoredScope.FromDbFormat(scope));
                 }
@@ -40,6 +41,7 @@ namespace Identityserver.Contrib.RavenDB
             var result = new List<Scope>();
 
             using (var s = _store.OpenAsyncSession())
+            using (s.Advanced.DocumentStore.AggressivelyCache())
             {
                 var scopesReader = await s.Advanced.StreamAsync<Data.StoredScope>("scopes/");
                 while (await scopesReader.MoveNextAsync())
