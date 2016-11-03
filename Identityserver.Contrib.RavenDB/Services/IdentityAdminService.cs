@@ -406,7 +406,7 @@ namespace Identityserver.Contrib.RavenDB.Services
                 var found = loaded.IdentityProviderRestrictions.FirstOrDefault(x => x == provider);
                 if (found == null)
                 {
-                    loaded.PostLogoutRedirectUris.Add(provider);
+                    loaded.IdentityProviderRestrictions.Add(provider);
                     await s.StoreAsync(loaded);
                     await s.SaveChangesAsync();
                 }
