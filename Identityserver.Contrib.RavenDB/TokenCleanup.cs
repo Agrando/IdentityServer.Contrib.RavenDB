@@ -81,7 +81,7 @@ namespace Identityserver.Contrib.RavenDB
                 await options.Store.AsyncDatabaseCommands.DeleteByIndexAsync("TokenCleanupIndex",
                     new IndexQuery
                     {
-                        Query = "Expires:[* TO \"" + DateTimeOffset.Now.ToString("s") + "\"]"
+                        Query = "Expires:[* TO \"" + DateTime.UtcNow.ToString("o") + "\"]"
                     }, new BulkOperationOptions
                     {
                         AllowStale = true
