@@ -22,7 +22,7 @@ namespace Identityserver.Contrib.RavenDB.Services
             using (var s = _store.OpenAsyncSession())
             using (s.Advanced.DocumentStore.AggressivelyCache())
             {
-                var rp = await s.LoadAsync<Data.StoredRelyingParty>("relyingparty/" + realm);
+                var rp = await s.Query<Data.StoredRelyingParty, Indexes.RelyingPartyIndex>().FirstOrDefaultAsync(x => x.Realm == realm);
 
                 if (rp == null)
                     return null;
