@@ -19,6 +19,8 @@ namespace Identityserver.Contrib.RavenDB
             _scopeStore = scopeStore;
         }
 
+        public TimeSpan? AuthCodeReplicationWaitingTime { get; set; } = null;
+
         public async Task StoreAsync(string key, AuthorizationCode value)
         {
             using (var s = _store.OpenAsyncSession())
@@ -26,6 +28,11 @@ namespace Identityserver.Contrib.RavenDB
             {
                 var toSave = Data.StoredAuthorizationCode.ToDbFormat(key, value);
                 await s.StoreAsync(toSave);
+
+                var w = AuthCodeReplicationWaitingTime;
+                if (w != null)
+                    s.Advanced.WaitForReplicationAfterSaveChanges(timeout: w, throwOnTimeout: false);
+
                 await s.SaveChangesAsync();
             }
         }

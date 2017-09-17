@@ -33,11 +33,11 @@ namespace IdentityServer3.Core.Configuration
             factory.Register(new Registration<IDocumentStore>(options.Store));            
         }
 
-        public static void RegisterConfigurationServices(this IdentityServerServiceFactory factory, RavenDbServiceOptions options)
+        public static void RegisterConfigurationServices(this IdentityServerServiceFactory factory, RavenDbServiceOptions options, TimeSpan? replicationWaitingTime = null)
         {
             factory.RegisterClientStore(options);
             factory.RegisterScopeStore(options);
-            factory.RegisterAuthorizationCodeStore(options);
+            factory.RegisterAuthorizationCodeStore(options, replicationWaitingTime);
             factory.RegisterTokenHandleStore(options);
             factory.RegisterConsentStore(options);
             factory.RegisterRefreshTokenStore(options);
@@ -89,13 +89,22 @@ namespace IdentityServer3.Core.Configuration
             factory.ConsentStore = new Registration<IConsentStore, ConsentStore>();
         }
 
-        public static void RegisterAuthorizationCodeStore(this IdentityServerServiceFactory factory, RavenDbServiceOptions options)
+        public static void RegisterAuthorizationCodeStore(this IdentityServerServiceFactory factory, RavenDbServiceOptions options, TimeSpan? replicationWaitingTime)
         {
             if (factory == null) throw new ArgumentNullException("factory");
             if (options == null) throw new ArgumentNullException("options");
 
             factory.Register(new Registration<IDocumentStore>(options.Store));
-            factory.AuthorizationCodeStore = new Registration<IAuthorizationCodeStore, AuthorizationCodeStore>();
+            factory.AuthorizationCodeStore = new Registration<IAuthorizationCodeStore>((dr) =>
+            {
+                var docStore = dr.Resolve<IDocumentStore>();
+                var scopeStore = dr.Resolve<IScopeStore>();
+
+                return new AuthorizationCodeStore(docStore, scopeStore)
+                {
+                    AuthCodeReplicationWaitingTime = replicationWaitingTime
+                };
+            });
         }
     }
 }
