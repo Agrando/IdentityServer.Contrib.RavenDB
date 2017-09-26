@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-using System;
 using Identityserver.Contrib.RavenDB;
 using Identityserver.Contrib.RavenDB.Registrations;
 using IdentityServer3.Core.Services;
 using Raven.Client;
-using Raven.Client.Document;
+using System;
 
 namespace IdentityServer3.Core.Configuration
 {
@@ -37,7 +36,7 @@ namespace IdentityServer3.Core.Configuration
         {
             factory.RegisterClientStore(options);
             factory.RegisterScopeStore(options);
-            factory.RegisterAuthorizationCodeStore(options, replicationWaitingTime);
+            factory.RegisterAuthorizationCodeStore(options);
             factory.RegisterTokenHandleStore(options);
             factory.RegisterConsentStore(options);
             factory.RegisterRefreshTokenStore(options);
@@ -89,22 +88,13 @@ namespace IdentityServer3.Core.Configuration
             factory.ConsentStore = new Registration<IConsentStore, ConsentStore>();
         }
 
-        public static void RegisterAuthorizationCodeStore(this IdentityServerServiceFactory factory, RavenDbServiceOptions options, TimeSpan? replicationWaitingTime)
+        public static void RegisterAuthorizationCodeStore(this IdentityServerServiceFactory factory, RavenDbServiceOptions options)
         {
             if (factory == null) throw new ArgumentNullException("factory");
             if (options == null) throw new ArgumentNullException("options");
 
             factory.Register(new Registration<IDocumentStore>(options.Store));
-            factory.AuthorizationCodeStore = new Registration<IAuthorizationCodeStore>((dr) =>
-            {
-                var docStore = dr.Resolve<IDocumentStore>();
-                var scopeStore = dr.Resolve<IScopeStore>();
-
-                return new AuthorizationCodeStore(docStore, scopeStore)
-                {
-                    AuthCodeReplicationWaitingTime = replicationWaitingTime
-                };
-            });
+            factory.AuthorizationCodeStore = new Registration<IAuthorizationCodeStore, AuthorizationCodeStore>();
         }
     }
 }

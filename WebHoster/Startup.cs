@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using IdentityAdmin.Configuration;
@@ -19,6 +20,14 @@ namespace WebHoster
     {
         public void Configuration(IAppBuilder app)
         {
+            var logStore = new Raven.Client.Document.DocumentStore() { ConnectionStringName = "Raven" }.Initialize();
+
+            Log.Logger = new LoggerConfiguration().MinimumLevel.Warning()
+                //.WriteTo.ColoredConsole(outputTemplate: "{Timestamp:HH:MM} [{Level}] ({Name:l}){NewLine} {Message}{NewLine}{Exception}")
+                .WriteTo.RavenDB(logStore, errorExpiration: System.Threading.Timeout.InfiniteTimeSpan, expiration: TimeSpan.FromHours(2))
+                .CreateLogger();
+            Log.Logger.Debug("Go");
+
             var options = new IdentityServerOptions
             {
                 SiteName = "IdentityServer3 (RavenDB)",
