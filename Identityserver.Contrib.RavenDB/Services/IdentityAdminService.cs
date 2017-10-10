@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using IdentityAdmin.Core;
@@ -142,7 +143,7 @@ namespace Identityserver.Contrib.RavenDB.Services
             var otherProperties = properties.Where(x => !exclude.Contains(x.Type)).ToArray();
             var metadata = await GetMetadataAsync();
             var createProps = metadata.ScopeMetaData.CreateProperties;
-            var scope = new Data.StoredScope { Name = scopeNameValue };
+            var scope = new Data.StoredScope {Name = scopeNameValue, Type = "Resource"};
 
             foreach (var prop in otherProperties)
             {
@@ -273,9 +274,9 @@ namespace Identityserver.Contrib.RavenDB.Services
                     AllowedCustomGrantTypes = loaded.AllowedCustomGrantTypes == null ? new List<ClientCustomGrantTypeValue>() : (from c in loaded.AllowedCustomGrantTypes select new ClientCustomGrantTypeValue { GrantType = c, Id = c }).ToList(),
                     Claims = loaded.Claims == null ? new List<ClientClaimValue>() : (from c in loaded.Claims select new ClientClaimValue { Id = c.Type + c.Value, Type = c.Type, Value = c.Value }).ToList(),
                     ClientSecrets = loaded.ClientSecrets == null ? new List<ClientSecretValue>() : (from c in loaded.ClientSecrets select new ClientSecretValue { Id = c.Type + c.Value, Type = c.Type, Value = c.Value }).ToList(),
-                    RedirectUris = loaded.RedirectUris == null ? new List<ClientRedirectUriValue>() : (from c in loaded.RedirectUris select new ClientRedirectUriValue { Id = c, Uri = c }).ToList(),
+                    RedirectUris = loaded.RedirectUris == null ? new List<ClientRedirectUriValue>() : (from c in loaded.RedirectUris select new ClientRedirectUriValue { Id = WebUtility.UrlEncode(c), Uri = c }).ToList(),
                     AllowedScopes = loaded.AllowedScopes == null ? new List<ClientScopeValue>() : (from c in loaded.AllowedScopes select new ClientScopeValue { Id = c, Scope = c }).ToList(),
-                    PostLogoutRedirectUris = loaded.PostLogoutRedirectUris == null ? new List<ClientPostLogoutRedirectUriValue>() : (from c in loaded.PostLogoutRedirectUris select new ClientPostLogoutRedirectUriValue { Id = c, Uri = c }).ToList(),
+                    PostLogoutRedirectUris = loaded.PostLogoutRedirectUris == null ? new List<ClientPostLogoutRedirectUriValue>() : (from c in loaded.PostLogoutRedirectUris select new ClientPostLogoutRedirectUriValue { Id = WebUtility.UrlEncode(c), Uri = c }).ToList(),
                     IdentityProviderRestrictions = loaded.IdentityProviderRestrictions == null ? new List<ClientIdPRestrictionValue>() : (from c in loaded.IdentityProviderRestrictions select new ClientIdPRestrictionValue { Id = c, Provider = c }).ToList(),
                     Properties = props.ToArray()
                 });
@@ -469,10 +470,12 @@ namespace Identityserver.Contrib.RavenDB.Services
                 if (loaded == null)
                     return new IdentityAdminResult("Invalid subject");
 
-                var found = loaded.PostLogoutRedirectUris.FirstOrDefault(x => x == id);
+                var decodedId = WebUtility.UrlDecode(id);
+
+                var found = loaded.PostLogoutRedirectUris.FirstOrDefault(x => x == decodedId);
                 if (found != null)
                 {
-                    loaded.PostLogoutRedirectUris.Remove(id);
+                    loaded.PostLogoutRedirectUris.Remove(decodedId);
                     await s.StoreAsync(loaded);
                     await s.SaveChangesAsync();
                 }
@@ -514,10 +517,12 @@ namespace Identityserver.Contrib.RavenDB.Services
                 if (loaded == null)
                     return new IdentityAdminResult("Invalid subject");
 
-                var found = loaded.RedirectUris.FirstOrDefault(x => x == id);
+                var decodedId = WebUtility.UrlDecode(id);
+
+                var found = loaded.RedirectUris.FirstOrDefault(x => x == decodedId);
                 if (found != null)
                 {
-                    loaded.RedirectUris.Remove(id);
+                    loaded.RedirectUris.Remove(decodedId);
                     await s.StoreAsync(loaded);
                     await s.SaveChangesAsync();
                 }
