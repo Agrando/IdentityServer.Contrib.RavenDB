@@ -7,11 +7,7 @@ namespace WebHost.Config
     {
         public static X509Certificate2 Get()
         {
-            var assembly = typeof(Certificate).Assembly;
-            using (var stream = assembly.GetManifestResourceStream("WebHoster.Config.idsrv3test.pfx"))
-            {
-                return new X509Certificate2(ReadStream(stream), "idsrv3test");
-            }
+            return GetCertByThumbPrint("B64F6846702990C960B81CA0562EB9D19AFDB755");
         }
 
         private static byte[] ReadStream(Stream input)
@@ -26,6 +22,27 @@ namespace WebHost.Config
                 }
                 return ms.ToArray();
             }
+        }
+
+        private static X509Certificate2 GetCertByThumbPrint(string th)
+        {
+            var store = new X509Store(StoreName.My, StoreLocation.LocalMachine);
+            store.Open(OpenFlags.ReadOnly);
+            var c = store.Certificates.Find(X509FindType.FindByThumbprint, th, false);
+            store.Close();
+
+            if (c.Count > 0)
+                return c[0];
+
+            store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+            store.Open(OpenFlags.ReadOnly);
+            c = store.Certificates.Find(X509FindType.FindByThumbprint, th, false);
+            store.Close();
+
+            if (c.Count > 0)
+                return c[0];
+
+            return null;
         }
     }
 }

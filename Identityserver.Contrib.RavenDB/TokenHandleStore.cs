@@ -62,11 +62,10 @@ namespace Identityserver.Contrib.RavenDB
             using (s.Advanced.DocumentStore.AggressivelyCache())
             {
                 var q = s.Query<Data.StoredToken, Indexes.TokenIndex>().Where(x => x.SubjectId == subject);
-
-                var streamer = await s.Advanced.StreamAsync(q);
-                while (await streamer.MoveNextAsync())
+                var loaded = await q.Take(int.MaxValue).ToListAsync();
+                
+                foreach(var thisOne in loaded)
                 {
-                    var thisOne = streamer.Current.Document;
                     result.Add(await Data.StoredToken.FromDbFormat(thisOne, _clientStore));
                 }
             }
@@ -80,10 +79,11 @@ namespace Identityserver.Contrib.RavenDB
             using (s.Advanced.DocumentStore.AggressivelyCache())
             {
                 var q = s.Query<Data.StoredToken, Indexes.TokenIndex>().Where(x => x.SubjectId == subject && x.ClientId == client);
-                var streamer = await s.Advanced.StreamAsync(q);
-                while (await streamer.MoveNextAsync())
+                var loaded = await q.Take(int.MaxValue).ToListAsync();
+                
+                foreach(var thisOne in loaded)
                 {
-                    s.Delete(streamer.Current.Document.Id);
+                    s.Delete(thisOne);
                 }
                 await s.SaveChangesAsync();
             }

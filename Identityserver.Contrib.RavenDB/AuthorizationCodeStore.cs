@@ -13,10 +13,12 @@ namespace Identityserver.Contrib.RavenDB
     {
         private readonly IDocumentStore _store;
         private readonly IScopeStore _scopeStore;
-        public AuthorizationCodeStore(IDocumentStore store, IScopeStore scopeStore)
+        private readonly IClientStore _clientStore;
+        public AuthorizationCodeStore(IDocumentStore store, IScopeStore scopeStore, IClientStore clientStore)
         {
             _store = store;
             _scopeStore = scopeStore;
+            _clientStore = clientStore;
         }
 
         public async Task StoreAsync(string key, AuthorizationCode value)
@@ -39,7 +41,7 @@ namespace Identityserver.Contrib.RavenDB
                 if (loaded == null)
                     return null;
 
-                return await Data.StoredAuthorizationCode.FromDbFormat(loaded, s, _scopeStore);
+                return await Data.StoredAuthorizationCode.FromDbFormat(loaded, _clientStore, _scopeStore);
             }
         }
 
@@ -61,12 +63,11 @@ namespace Identityserver.Contrib.RavenDB
             using (s.Advanced.DocumentStore.AggressivelyCache())
             {
                 var q = s.Query<Data.StoredAuthorizationCode, Indexes.AuthorizationCodeIndex>().Where(x => x.SubjectId == subject);
-                var streamer = await s.Advanced.StreamAsync<Data.StoredAuthorizationCode>(q);
+                var loaded = await q.Take(int.MaxValue).ToListAsync();
 
-                while (await streamer.MoveNextAsync())
+                foreach(var thisOne in loaded)
                 {
-                    var thisOne = streamer.Current.Document;
-                    result.Add(await Data.StoredAuthorizationCode.FromDbFormat(thisOne, s, _scopeStore));
+                    result.Add(await Data.StoredAuthorizationCode.FromDbFormat(thisOne, _clientStore, _scopeStore));
                 }
             }
 
@@ -79,11 +80,10 @@ namespace Identityserver.Contrib.RavenDB
             using (s.Advanced.DocumentStore.AggressivelyCache())
             {
                 var q = s.Query<Data.StoredAuthorizationCode, Indexes.AuthorizationCodeIndex>().Where(x => x.ClientId == client && x.SubjectId == subject);
-                var streamer = await s.Advanced.StreamAsync<Data.StoredAuthorizationCode>(q);
+                var loaded = await q.Take(int.MaxValue).ToListAsync();
 
-                while (await streamer.MoveNextAsync())
+                foreach(var thisOne in loaded)
                 {
-                    var thisOne = streamer.Current.Document;
                     s.Delete(thisOne.Id);
                 }
 

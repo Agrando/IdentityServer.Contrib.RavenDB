@@ -43,10 +43,10 @@ namespace Identityserver.Contrib.RavenDB
             using (var s = _store.OpenAsyncSession())
             using (s.Advanced.DocumentStore.AggressivelyCache())
             {
-                var scopesReader = await s.Advanced.StreamAsync<Data.StoredScope>("scopes/");
-                while (await scopesReader.MoveNextAsync())
+                var loadedScopes = await s.Advanced.LoadStartingWithAsync<Data.StoredScope>("scopes/", pageSize: int.MaxValue);
+                
+                foreach(var thisOne in loadedScopes)
                 {
-                    var thisOne = scopesReader.Current.Document;
                     if (publicOnly == false || thisOne.ShowInDiscoveryDocument)
                     {
                         result.Add(Data.StoredScope.FromDbFormat(thisOne));

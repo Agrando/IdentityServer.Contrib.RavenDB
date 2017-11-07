@@ -24,10 +24,9 @@ namespace Identityserver.Contrib.RavenDB
             using (var s = _store.OpenAsyncSession())
             using (s.Advanced.DocumentStore.AggressivelyCache())
             {
-                var items = await s.Advanced.StreamAsync<Data.StoredConsent>("consents/" + subject);
-                while (await items.MoveNextAsync())
+                var loaded = await s.Advanced.LoadStartingWithAsync<Data.StoredConsent>("consents/" + subject, pageSize: int.MaxValue);
+                foreach(var thisOne in loaded)
                 {
-                    var thisOne = items.Current.Document;
                     result.Add(Data.StoredConsent.FromDbFormat(thisOne));
                 }
             }
