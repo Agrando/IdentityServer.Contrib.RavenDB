@@ -13,11 +13,10 @@ namespace Identityserver.Contrib.RavenDB
     {
         private readonly IDocumentStore _store;
 
-        public RavenDbServiceOptions(string[] urls, string databasename)
+        public RavenDbServiceOptions(Func<IDocumentStore> createStore)
         {
-            _store = new DocumentStore { Urls = urls, Database = databasename };
+            _store = createStore();
             _store.Initialize();
-
             IndexCreation.CreateIndexes(GetType().Assembly, _store);
         }
 
