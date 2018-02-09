@@ -5,7 +5,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using IdentityServer3.Core.Logging;
-using Raven.Abstractions.Data;
+using Raven.Client.Documents.Operations;
+using Raven.Client.Documents.Queries;
 
 namespace Identityserver.Contrib.RavenDB
 {
@@ -78,14 +79,12 @@ namespace Identityserver.Contrib.RavenDB
             {
                 Logger.Info("Clearing tokens");
 
-                await options.Store.AsyncDatabaseCommands.DeleteByIndexAsync("TokenCleanupIndex",
-                    new IndexQuery
+                await options.Store.Operations.SendAsync(new DeleteByQueryOperation<Indexes.TokenCleanupResult>("TokenCleanupIndex",
+                    x => x.Expires <= DateTimeOffset.Now,
+                    new QueryOperationOptions
                     {
-                        Query = "Expires:[* TO \"" + DateTime.UtcNow.ToString("o") + "\"]"
-                    }, new BulkOperationOptions
-                    {
-                        AllowStale = true
-                    });
+                        AllowStale = false
+                    }));
             }
             catch (Exception ex)
             {

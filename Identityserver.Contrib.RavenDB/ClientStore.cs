@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using IdentityServer3.Core.Models;
 using IdentityServer3.Core.Services;
 using Raven.Client;
+using Raven.Client.Documents;
 
 namespace Identityserver.Contrib.RavenDB
 {
@@ -20,7 +21,7 @@ namespace Identityserver.Contrib.RavenDB
         public async Task<Client> FindClientByIdAsync(string clientId)
         {
             using (var s = _store.OpenAsyncSession())
-            using (s.Advanced.DocumentStore.AggressivelyCache())
+             
             {
                 var loaded = await s.LoadAsync<Data.StoredClient>("clients/" + clientId);
                 if (loaded == null)

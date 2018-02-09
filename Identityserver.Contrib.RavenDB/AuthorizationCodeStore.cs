@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using IdentityServer3.Core.Models;
 using IdentityServer3.Core.Services;
 using Raven.Client;
+using Raven.Client.Documents;
 
 namespace Identityserver.Contrib.RavenDB
 {
@@ -24,7 +25,7 @@ namespace Identityserver.Contrib.RavenDB
         public async Task StoreAsync(string key, AuthorizationCode value)
         {
             using (var s = _store.OpenAsyncSession())
-            using (s.Advanced.DocumentStore.AggressivelyCache())
+             
             {
                 var toSave = Data.StoredAuthorizationCode.ToDbFormat(key, value);
                 await s.StoreAsync(toSave);
@@ -35,7 +36,7 @@ namespace Identityserver.Contrib.RavenDB
         public async Task<AuthorizationCode> GetAsync(string key)
         {
             using (var s = _store.OpenAsyncSession())
-            using (s.Advanced.DocumentStore.AggressivelyCache())
+             
             {
                 var loaded = await s.LoadAsync<Data.StoredAuthorizationCode>("authorizationcodes/" + key);
                 if (loaded == null)
@@ -48,7 +49,7 @@ namespace Identityserver.Contrib.RavenDB
         public async Task RemoveAsync(string key)
         {
             using (var s = _store.OpenAsyncSession())
-            using (s.Advanced.DocumentStore.AggressivelyCache())
+             
             {
                 s.Delete("authorizationcodes/" + key);
                 await s.SaveChangesAsync();
@@ -60,7 +61,7 @@ namespace Identityserver.Contrib.RavenDB
             var result = new List<AuthorizationCode>();
 
             using (var s = _store.OpenAsyncSession())
-            using (s.Advanced.DocumentStore.AggressivelyCache())
+             
             {
                 var q = s.Query<Data.StoredAuthorizationCode, Indexes.AuthorizationCodeIndex>().Where(x => x.SubjectId == subject);
                 var loaded = await q.Take(int.MaxValue).ToListAsync();
@@ -77,7 +78,7 @@ namespace Identityserver.Contrib.RavenDB
         public async Task RevokeAsync(string subject, string client)
         {
             using (var s = _store.OpenAsyncSession())
-            using (s.Advanced.DocumentStore.AggressivelyCache())
+             
             {
                 var q = s.Query<Data.StoredAuthorizationCode, Indexes.AuthorizationCodeIndex>().Where(x => x.ClientId == client && x.SubjectId == subject);
                 var loaded = await q.Take(int.MaxValue).ToListAsync();

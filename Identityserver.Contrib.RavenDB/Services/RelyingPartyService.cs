@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using IdentityServer3.WsFederation.Models;
 using Raven.Client;
+using Raven.Client.Documents;
 
 namespace Identityserver.Contrib.RavenDB.Services
 {
@@ -20,7 +21,7 @@ namespace Identityserver.Contrib.RavenDB.Services
         public async Task<RelyingParty> GetByRealmAsync(string realm)
         {
             using (var s = _store.OpenAsyncSession())
-            using (s.Advanced.DocumentStore.AggressivelyCache())
+             
             {
                 var rp = await s.Query<Data.StoredRelyingParty, Indexes.RelyingPartyIndex>().FirstOrDefaultAsync(x => x.Realm == realm);
 

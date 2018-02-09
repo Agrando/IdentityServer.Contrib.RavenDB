@@ -12,6 +12,8 @@ using IdentityAdmin.Extensions;
 using Identityserver.Contrib.RavenDB.Data;
 using IdentityServer3.Core.Models;
 using Raven.Client;
+using Raven.Client.Documents;
+using Raven.Client.Documents.Session;
 
 namespace Identityserver.Contrib.RavenDB.Services
 {
@@ -109,7 +111,7 @@ namespace Identityserver.Contrib.RavenDB.Services
         {
             using (var s = _store.OpenAsyncSession())
             {
-                RavenQueryStatistics stat;
+                QueryStatistics stat;
                 var q = s.Query<Data.StoredScope, Indexes.AdminScopeQuery>().Statistics(out stat).Take(count).Skip(start);
                 if (string.IsNullOrWhiteSpace(filter) == false)
                 {
@@ -670,7 +672,7 @@ namespace Identityserver.Contrib.RavenDB.Services
         {
             using (var s = _store.OpenAsyncSession())
             {
-                RavenQueryStatistics stat;
+                QueryStatistics stat;
                 var q = s.Query<Data.StoredClient, Indexes.AdminClientQuery>().Statistics(out stat).Take(count).Skip(start);
                 if (string.IsNullOrWhiteSpace(filter) == false)
                 {

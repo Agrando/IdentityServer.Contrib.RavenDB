@@ -19,6 +19,7 @@ using Identityserver.Contrib.RavenDB.Registrations;
 using IdentityServer3.Core.Services;
 using Raven.Client;
 using System;
+using Raven.Client.Documents;
 
 namespace IdentityServer3.Core.Configuration
 {

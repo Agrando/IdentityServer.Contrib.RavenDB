@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using IdentityServer3.Core.Services;
 using Raven.Client;
+using Raven.Client.Documents;
 
 namespace Identityserver.Contrib.RavenDB.Services
 {
@@ -19,7 +20,7 @@ namespace Identityserver.Contrib.RavenDB.Services
         public async Task<bool> IsOriginAllowedAsync(string origin)
         {
             using (var s = _store.OpenAsyncSession())
-            using (s.Advanced.DocumentStore.AggressivelyCache())
+             
             {
                 var q = s.Advanced.AsyncDocumentQuery<Data.StoredClient, Indexes.CorsIndex>().WhereEquals("AllowedOrigin", origin);
                 var count = q.CountLazilyAsync();

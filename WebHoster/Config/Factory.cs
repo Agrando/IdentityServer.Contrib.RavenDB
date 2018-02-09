@@ -16,7 +16,7 @@ namespace WebHost.Config
 
         public static IdentityServerServiceFactory Configure()
         {
-            _ravenConfig = new RavenDbServiceOptions("Raven");
+            _ravenConfig = new RavenDbServiceOptions(new[] { System.Configuration.ConfigurationManager.AppSettings["RavenDbUrl"] }, System.Configuration.ConfigurationManager.AppSettings["RavenDatabaseName"]);
 
             var cleanup = new TokenCleanup(_ravenConfig, 30);
             cleanup.Start();

@@ -10,9 +10,9 @@ namespace Identityserver.Contrib.RavenDB
 {
     public class ScopeStore : IScopeStore
     {
-        private readonly Raven.Client.IDocumentStore _store;
+        private readonly Raven.Client.Documents.IDocumentStore _store;
 
-        public ScopeStore(Raven.Client.IDocumentStore store)
+        public ScopeStore(Raven.Client.Documents.IDocumentStore store)
         {
             _store = store;
         }
@@ -22,12 +22,12 @@ namespace Identityserver.Contrib.RavenDB
             var result = new List<Scope>();
 
             using (var s = _store.OpenAsyncSession())
-            using (s.Advanced.DocumentStore.AggressivelyCache())
+             
             {
                 var ids = from scopeName in scopeNames select "scopes/" + scopeName;
                 var storedScopes = await s.LoadAsync<Data.StoredScope>(ids);
 
-                foreach (var scope in storedScopes.Where(x => x != null))
+                foreach (var scope in storedScopes.Values.Where(x => x != null))
                 {
                     result.Add(Data.StoredScope.FromDbFormat(scope));
                 }
@@ -41,7 +41,7 @@ namespace Identityserver.Contrib.RavenDB
             var result = new List<Scope>();
 
             using (var s = _store.OpenAsyncSession())
-            using (s.Advanced.DocumentStore.AggressivelyCache())
+             
             {
                 var loadedScopes = await s.Advanced.LoadStartingWithAsync<Data.StoredScope>("scopes/", pageSize: int.MaxValue);
                 

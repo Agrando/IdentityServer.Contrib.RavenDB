@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using IdentityServer3.Core.Configuration;
 using IdentityServer3.Core.Services;
 using Raven.Client;
-using Raven.Client.Document;
+using Raven.Client.Documents;
 
 namespace Identityserver.Contrib.RavenDB.Registrations
 {
