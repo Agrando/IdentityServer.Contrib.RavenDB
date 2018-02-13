@@ -22,6 +22,26 @@ using System;
 
 namespace IdentityServer3.Core.Configuration
 {
+    public class SessionWrapper : IDisposable
+    {
+        private readonly IDocumentSession _s;
+        public SessionWrapper(IDocumentSession s)
+        {
+            _s = s;
+        }
+
+        public IDocumentSession Session
+        {
+            get { return _s; }
+        }
+
+        public void Dispose()
+        {
+            _s?.SaveChanges();
+            _s?.Dispose();
+        }
+    }
+
     public static class IdentityServerServiceFactoryExtensions
     {
         public static void RegisterOperationalServices(this IdentityServerServiceFactory factory, RavenDbServiceOptions options)
@@ -48,6 +68,7 @@ namespace IdentityServer3.Core.Configuration
             if (options == null) throw new ArgumentNullException("options");
 
             factory.Register(new Registration<IDocumentStore>(options.Store));
+            factory.Register(new Registration<SessionWrapper>(c => new SessionWrapper(options.Store.OpenSession())) { Mode = RegistrationMode.InstancePerHttpRequest });
             factory.ClientStore = new Registration<IClientStore, ClientStore>();
             factory.CorsPolicyService = new ClientConfigurationCorsPolicyRegistration(options);
         }

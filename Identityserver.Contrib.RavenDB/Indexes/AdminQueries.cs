@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Raven.Abstractions.Indexing;
 using Raven.Client.Indexes;
 
 namespace Identityserver.Contrib.RavenDB.Indexes
@@ -16,6 +17,8 @@ namespace Identityserver.Contrib.RavenDB.Indexes
                 {
                     m.ClientName
                 };
+
+            Index(x => x.ClientName, FieldIndexing.Analyzed);
         }
     }
 
@@ -28,6 +31,8 @@ namespace Identityserver.Contrib.RavenDB.Indexes
                 {
                     m.Name
                 };
+
+            Index(x => x.Name, FieldIndexing.Analyzed);
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using IdentityServer3.Core.Configuration;
 using IdentityServer3.Core.Models;
 using IdentityServer3.Core.Services;
 using Raven.Client;
@@ -11,64 +12,48 @@ namespace Identityserver.Contrib.RavenDB
 {
     public class ConsentStore : IConsentStore
     {
-        private readonly IDocumentStore _store;
-        public ConsentStore(IDocumentStore store)
+        private readonly IDocumentSession s;
+        public ConsentStore(SessionWrapper session)
         {
-            _store = store;
+            s = session.Session;
         }
 
-        public async Task<IEnumerable<Consent>> LoadAllAsync(string subject)
+        public Task<IEnumerable<Consent>> LoadAllAsync(string subject)
         {
             var result = new List<Consent>();
 
-            using (var s = _store.OpenAsyncSession())
-            using (s.Advanced.DocumentStore.AggressivelyCache())
+            var loaded = s.Advanced.LoadStartingWith<Data.StoredConsent>("consents/" + subject, pageSize: int.MaxValue);
+            foreach (var thisOne in loaded)
             {
-                var loaded = await s.Advanced.LoadStartingWithAsync<Data.StoredConsent>("consents/" + subject, pageSize: int.MaxValue);
-                foreach(var thisOne in loaded)
-                {
-                    result.Add(Data.StoredConsent.FromDbFormat(thisOne));
-                }
+                result.Add(Data.StoredConsent.FromDbFormat(thisOne));
             }
 
-            return result;
+            return Task.FromResult((IEnumerable<Consent>)result);
         }
 
-        public async Task RevokeAsync(string subject, string client)
+        public Task RevokeAsync(string subject, string client)
         {
             var id = "consents/" + subject + "/" + client;
-            using (var s = _store.OpenAsyncSession())
-            using (s.Advanced.DocumentStore.AggressivelyCache())
-            {
-                s.Delete(id);
-                await s.SaveChangesAsync();
-            }
+            s.Delete(id);
+            return Task.Delay(0);
         }
 
-        public async Task<Consent> LoadAsync(string subject, string client)
+        public Task<Consent> LoadAsync(string subject, string client)
         {
             var id = "consents/" + subject + "/" + client;
-            using (var s = _store.OpenAsyncSession())
-            using (s.Advanced.DocumentStore.AggressivelyCache())
-            {
-                var loaded = await s.LoadAsync<Data.StoredConsent>(id);
-                if (loaded == null)
-                    return null;
 
-                return Data.StoredConsent.FromDbFormat(loaded);
-            }
+            var loaded = s.Load<Data.StoredConsent>(id);
+            if (loaded == null)
+                return null;
+
+            return Task.FromResult(Data.StoredConsent.FromDbFormat(loaded));
         }
 
-        public async Task UpdateAsync(Consent consent)
+        public Task UpdateAsync(Consent consent)
         {
-            using (var s = _store.OpenAsyncSession())
-            using (s.Advanced.DocumentStore.AggressivelyCache())
-            {
-                var storedConsent = Data.StoredConsent.ToDbFormat(consent);
-
-                await s.StoreAsync(storedConsent);
-                await s.SaveChangesAsync();
-            }
+            var storedConsent = Data.StoredConsent.ToDbFormat(consent);
+            s.Store(storedConsent);
+            return Task.Delay(0);
         }
     }
 }

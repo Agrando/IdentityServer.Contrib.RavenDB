@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using IdentityServer3.Core.Configuration;
 using IdentityServer3.Core.Models;
 using IdentityServer3.Core.Services;
 using Raven.Client;
@@ -12,81 +13,63 @@ namespace Identityserver.Contrib.RavenDB
 {
     public class RefreshTokenStore : IRefreshTokenStore
     {
-        private readonly IDocumentStore _store;
+        private readonly IDocumentSession s;
         private readonly IClientStore _clientStore;
 
-        public RefreshTokenStore(IDocumentStore store, IClientStore clientStore)
+        public RefreshTokenStore(SessionWrapper session, IClientStore clientStore)
         {
-            _store = store;
+            s = session.Session;
             _clientStore = clientStore;
         }
 
-        public async Task StoreAsync(string key, RefreshToken value)
+        public Task StoreAsync(string key, RefreshToken value)
         {
-            using (var s = _store.OpenAsyncSession())
-            using (s.Advanced.DocumentStore.AggressivelyCache())
-            {
-                var toSave = Data.StoredRefreshToken.ToDbFormat(key, value);
-                await s.StoreAsync(toSave);
-                await s.SaveChangesAsync();
-            }
+            var toSave = Data.StoredRefreshToken.ToDbFormat(key, value);
+            s.Store(toSave);
+            return Task.Delay(0);
         }
 
         public async Task<RefreshToken> GetAsync(string key)
         {
-            using (var s = _store.OpenAsyncSession())
-            using (s.Advanced.DocumentStore.AggressivelyCache())
-            {
-                var loaded = await s.LoadAsync<Data.StoredRefreshToken>("refreshtokens/" + key);
-                if (loaded == null)
-                    return null;
+            var loaded = s.Load<Data.StoredRefreshToken>("refreshtokens/" + key);
+            if (loaded == null)
+                return null;
 
-                return await Data.StoredRefreshToken.FromDbFormat(loaded, _clientStore);
-            }
+            var client = s.Load<Data.StoredClient>("clients/" + loaded.ClientId);
+
+            return await Data.StoredRefreshToken.FromDbFormat(loaded, _clientStore);
         }
 
-        public async Task RemoveAsync(string key)
+        public Task RemoveAsync(string key)
         {
-            using (var s = _store.OpenAsyncSession())
-            using (s.Advanced.DocumentStore.AggressivelyCache())
-            {
-                s.Delete("refreshtokens/" + key);
-                await s.SaveChangesAsync();
-            }
+            s.Delete("refreshtokens/" + key);
+            return Task.Delay(0);
         }
 
         public async Task<IEnumerable<ITokenMetadata>> GetAllAsync(string subject)
         {
             var result = new List<ITokenMetadata>();
 
-            using (var s = _store.OpenAsyncSession())
-            using (s.Advanced.DocumentStore.AggressivelyCache())
-            {
-                var q = s.Query<Data.StoredRefreshToken, Indexes.RefreshTokenIndex>().Where(x => x.SubjectId == subject);
-                var loaded = await q.Take(int.MaxValue).ToListAsync();
+            var q = s.Query<Data.StoredRefreshToken, Indexes.RefreshTokenIndex>().Where(x => x.SubjectId == subject);
+            var loaded = q.ToList();
 
-                foreach(var thisOne in loaded)
-                {
-                    result.Add(await Data.StoredRefreshToken.FromDbFormat(thisOne, _clientStore));
-                }
+            foreach (var thisOne in loaded)
+            {
+                result.Add(await Data.StoredRefreshToken.FromDbFormat(thisOne, _clientStore));
             }
 
             return result;
         }
 
-        public async Task RevokeAsync(string subject, string client)
+        public Task RevokeAsync(string subject, string client)
         {
-            using (var s = _store.OpenAsyncSession())
-            using (s.Advanced.DocumentStore.AggressivelyCache())
+            var q = s.Query<Data.StoredRefreshToken, Indexes.RefreshTokenIndex>().Where(x => x.SubjectId == subject && x.ClientId == client);
+            var loaded = q.ToList();
+            foreach (var thisOne in loaded)
             {
-                var q = s.Query<Data.StoredRefreshToken, Indexes.RefreshTokenIndex>().Where(x => x.SubjectId == subject && x.ClientId == client);
-                var loaded = await q.Take(int.MaxValue).ToListAsync();
-                foreach(var thisOne in loaded)
-                {
-                    s.Delete(thisOne);
-                }
-                await s.SaveChangesAsync();
+                s.Delete(thisOne);
             }
+            return Task.Delay(0);
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using IdentityServer3.Core.Configuration;
 using IdentityServer3.Core.Models;
 using IdentityServer3.Core.Services;
 using Raven.Client;
@@ -11,23 +12,22 @@ namespace Identityserver.Contrib.RavenDB
 {
     public class ClientStore : IClientStore
     {
-        private readonly IDocumentStore _store;
-        public ClientStore(IDocumentStore store)
+        private readonly IDocumentSession s;
+        public ClientStore(SessionWrapper session)
         {
-            _store = store;
+            s = session.Session;
         }
 
-        public async Task<Client> FindClientByIdAsync(string clientId)
+        public Task<Client> FindClientByIdAsync(string clientId)
         {
-            using (var s = _store.OpenAsyncSession())
-            using (s.Advanced.DocumentStore.AggressivelyCache())
-            {
-                var loaded = await s.LoadAsync<Data.StoredClient>("clients/" + clientId);
-                if (loaded == null)
-                    return null;
+            if (clientId == null)
+                return Task.FromResult<Client>(null);
 
-                return Data.StoredClient.FromDbFormat(loaded);
-            }
+            var loaded = s.Load<Data.StoredClient>("clients/" + clientId);
+            if (loaded == null)
+                return Task.FromResult<Client>(null);
+
+            return Task.FromResult(Data.StoredClient.FromDbFormat(loaded));
         }
     }
 }
