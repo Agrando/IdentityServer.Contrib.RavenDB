@@ -49,7 +49,7 @@ namespace Identityserver.Contrib.RavenDB.Data
             };
         }
 
-        internal static async Task<RefreshToken> FromDbFormat(StoredRefreshToken token, IClientStore clientStore)
+        internal static RefreshToken FromDbFormat(StoredRefreshToken token, StoredClient client)
         {
             return new RefreshToken
             {
@@ -57,7 +57,7 @@ namespace Identityserver.Contrib.RavenDB.Data
                 LifeTime = token.LifeTime,
                 Version = token.Version,
                 Subject = new ClaimsPrincipal(new ClaimsIdentity((from c in token.Claims select StoredRefreshTokenClaim.FromDbFormat(c)).ToList())),
-                AccessToken = await Data.StoredToken.FromDbFormat(token.AccessToken, clientStore)
+                AccessToken = Data.StoredToken.FromDbFormat(token.AccessToken, client)
             };
         }
     }

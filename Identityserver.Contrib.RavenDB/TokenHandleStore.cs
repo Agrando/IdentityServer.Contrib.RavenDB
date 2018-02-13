@@ -3,91 +3,76 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using IdentityServer3.Core.Configuration;
 using IdentityServer3.Core.Models;
 using IdentityServer3.Core.Services;
 using Raven.Client;
 using Raven.Client.Documents;
+using Raven.Client.Documents.Session;
 
 namespace Identityserver.Contrib.RavenDB
 {
     public class TokenHandleStore : ITokenHandleStore
     {
-        private readonly IDocumentStore _store;
-        private readonly IClientStore _clientStore;
-        public TokenHandleStore(IDocumentStore store, IClientStore clientStore)
+        private readonly IDocumentSession s;
+
+        public TokenHandleStore(SessionWrapper session)
         {
-            _store = store;
-            _clientStore = clientStore;
+            s = session.Session;
         }
 
-        public async Task StoreAsync(string key, Token value)
+        public Task StoreAsync(string key, Token value)
         {
-            using (var s = _store.OpenAsyncSession())
-             
-            {
-                var toSave = Data.StoredToken.ToDbFormat(value);
-                toSave.Id = "tokens/" + key;
-                await s.StoreAsync(toSave);
-                await s.SaveChangesAsync();
-            }
+            var toSave = Data.StoredToken.ToDbFormat(value);
+            toSave.Id = "tokens/" + key;
+            s.Store(toSave);
+            return Task.CompletedTask;
         }
 
-        public async Task<Token> GetAsync(string key)
+        public Task<Token> GetAsync(string key)
         {
-            using (var s = _store.OpenAsyncSession())
-             
-            {
-                var loaded = await s.LoadAsync<Data.StoredToken>("tokens/" + key);
-                if (loaded == null)
-                    return null;
 
-                return await Data.StoredToken.FromDbFormat(loaded, _clientStore);
-            }
+            var loaded = s.Load<Data.StoredToken>("tokens/" + key);
+            if (loaded == null)
+                return null;
+
+            var client = s.Load<Data.StoredClient>("clients/" + loaded.ClientId);
+
+            return Task.FromResult(Data.StoredToken.FromDbFormat(loaded, client));
         }
 
-        public async Task RemoveAsync(string key)
+        public Task RemoveAsync(string key)
         {
-            using (var s = _store.OpenAsyncSession())
-             
-            {
-                s.Delete("tokens/" + key);
-                await s.SaveChangesAsync();
-            }
+            s.Delete("tokens/" + key);
+            return Task.CompletedTask;
         }
 
-        public async Task<IEnumerable<ITokenMetadata>> GetAllAsync(string subject)
+        public Task<IEnumerable<ITokenMetadata>> GetAllAsync(string subject)
         {
             var result = new List<ITokenMetadata>();
 
-            using (var s = _store.OpenAsyncSession())
-             
+            var q = s.Query<Data.StoredToken, Indexes.TokenIndex>().Where(x => x.SubjectId == subject);
+            var loaded = q.ToList();
+            var clients = s.Load<Data.StoredClient>(from l in loaded select "clients/" + l.ClientId);
+
+            foreach (var thisOne in loaded)
             {
-                var q = s.Query<Data.StoredToken, Indexes.TokenIndex>().Where(x => x.SubjectId == subject);
-                var loaded = await q.Take(int.MaxValue).ToListAsync();
-                
-                foreach(var thisOne in loaded)
-                {
-                    result.Add(await Data.StoredToken.FromDbFormat(thisOne, _clientStore));
-                }
+                result.Add(Data.StoredToken.FromDbFormat(thisOne, clients["clients/" + thisOne.ClientId]));
             }
 
-            return result;
+            return Task.FromResult(result.Cast<ITokenMetadata>());
         }
 
-        public async Task RevokeAsync(string subject, string client)
+        public Task RevokeAsync(string subject, string client)
         {
-            using (var s = _store.OpenAsyncSession())
-             
+            var q = s.Query<Data.StoredToken, Indexes.TokenIndex>().Where(x => x.SubjectId == subject && x.ClientId == client);
+            var loaded = q.ToList();
+
+            foreach (var thisOne in loaded)
             {
-                var q = s.Query<Data.StoredToken, Indexes.TokenIndex>().Where(x => x.SubjectId == subject && x.ClientId == client);
-                var loaded = await q.Take(int.MaxValue).ToListAsync();
-                
-                foreach(var thisOne in loaded)
-                {
-                    s.Delete(thisOne);
-                }
-                await s.SaveChangesAsync();
+                s.Delete(thisOne);
             }
+            return Task.CompletedTask;
         }
     }
 }

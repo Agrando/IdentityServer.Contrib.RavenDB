@@ -70,7 +70,7 @@ namespace Identityserver.Contrib.RavenDB.Data
             return result;
         }
 
-        internal static async Task<AuthorizationCode> FromDbFormat(StoredAuthorizationCode code, IClientStore clientStore, IScopeStore scopeStore)
+        internal static AuthorizationCode FromDbFormat(StoredAuthorizationCode code, StoredClient client, IEnumerable<StoredScope> scopes)
         {
             var result = new AuthorizationCode
             {
@@ -79,11 +79,11 @@ namespace Identityserver.Contrib.RavenDB.Data
                 RedirectUri = code.RedirectUri,
                 WasConsentShown = code.WasConsentShown,
                 Nonce = code.Nonce,
-                Client = await clientStore.FindClientByIdAsync(code.Client),
+                Client = StoredClient.FromDbFormat(client),
                 CodeChallenge = code.CodeChallenge,
                 CodeChallengeMethod = code.CodeChallengeMethod,
                 SessionId = code.SessionId,
-                RequestedScopes = await scopeStore.FindScopesAsync(code.RequestedScopes)
+                RequestedScopes = (from s in scopes select StoredScope.FromDbFormat(s))
             };
 
             var claimsPrinciple = new ClaimsPrincipal();

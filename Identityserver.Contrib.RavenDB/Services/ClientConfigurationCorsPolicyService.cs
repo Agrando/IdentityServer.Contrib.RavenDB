@@ -3,29 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using IdentityServer3.Core.Configuration;
 using IdentityServer3.Core.Services;
 using Raven.Client;
 using Raven.Client.Documents;
+using Raven.Client.Documents.Session;
 
 namespace Identityserver.Contrib.RavenDB.Services
 {
     public class ClientConfigurationCorsPolicyService : ICorsPolicyService
     {
-        private readonly IDocumentStore _store;
-        public ClientConfigurationCorsPolicyService(IDocumentStore store)
+        private readonly IDocumentSession s;
+        public ClientConfigurationCorsPolicyService(SessionWrapper session)
         {
-            _store = store;
+            s = session.Session;
         }
 
-        public async Task<bool> IsOriginAllowedAsync(string origin)
+        public Task<bool> IsOriginAllowedAsync(string origin)
         {
-            using (var s = _store.OpenAsyncSession())
-             
-            {
-                var q = s.Advanced.AsyncDocumentQuery<Data.StoredClient, Indexes.CorsIndex>().WhereEquals("AllowedOrigin", origin);
-                var count = q.CountLazilyAsync();
-                return await count.Value > 0;
-            }
+            var q = s.Advanced.DocumentQuery<Data.StoredClient, Indexes.CorsIndex>().WhereEquals("AllowedOrigin", origin);
+            var count = q.CountLazily();
+            return Task.FromResult(count.Value > 0);
         }
     }
 }

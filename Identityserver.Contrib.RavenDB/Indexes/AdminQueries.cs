@@ -16,6 +16,8 @@ namespace Identityserver.Contrib.RavenDB.Indexes
                 {
                     m.ClientName
                 };
+
+            Index(x => x.ClientName, FieldIndexing.Search);
         }
     }
 
@@ -28,6 +30,8 @@ namespace Identityserver.Contrib.RavenDB.Indexes
                 {
                     m.Name
                 };
+
+            Index(x => x.Name, FieldIndexing.Search);
         }
     }
 }

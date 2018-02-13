@@ -91,7 +91,8 @@ namespace WebHoster
             var adminOptions = new IdentityAdminOptions
             {
                 Factory = adminFactory,
-                AdminSecurityConfiguration = new AdminHostSecurityConfiguration { HostAuthenticationType = "Cookies" }
+                //AdminSecurityConfiguration = new AdminHostSecurityConfiguration { HostAuthenticationType = "Cookies" }
+                AdminSecurityConfiguration = new LocalhostSecurityConfiguration()
             };
             adminOptions.AdminSecurityConfiguration.RequireSsl = false;
 

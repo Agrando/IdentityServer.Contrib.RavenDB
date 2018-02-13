@@ -53,12 +53,12 @@ namespace Identityserver.Contrib.RavenDB.Data
             };
         }
 
-        internal static async Task<Token> FromDbFormat(StoredToken token, IClientStore clientStore)
+        internal static Token FromDbFormat(StoredToken token, StoredClient client)
         {
             return new Token
             {
                 Audience = token.Audience,
-                Client = await clientStore.FindClientByIdAsync(token.Client),
+                Client = StoredClient.FromDbFormat(client),
                 Type = token.Type,
                 CreationTime = token.CreationTime,
                 Issuer = token.Issuer,
