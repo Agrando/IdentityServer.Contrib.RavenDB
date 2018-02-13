@@ -23,11 +23,14 @@ namespace Identityserver.Contrib.RavenDB
             if (clientId == null)
                 return Task.FromResult<Client>(null);
 
-            var loaded = s.Load<Data.StoredClient>("clients/" + clientId);
-            if (loaded == null)
-                return Task.FromResult<Client>(null);
+            using (s.Advanced.DocumentStore.AggressivelyCache())
+            {
+                var loaded = s.Load<Data.StoredClient>("clients/" + clientId);
+                if (loaded == null)
+                    return Task.FromResult<Client>(null);
 
-            return Task.FromResult(Data.StoredClient.FromDbFormat(loaded));
+                return Task.FromResult(Data.StoredClient.FromDbFormat(loaded));
+            }
         }
     }
 }

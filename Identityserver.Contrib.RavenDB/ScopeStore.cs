@@ -23,32 +23,38 @@ namespace Identityserver.Contrib.RavenDB
         {
             var result = new List<Scope>();
 
-            var ids = from scopeName in scopeNames select "scopes/" + scopeName;
-            var storedScopes = s.Load<Data.StoredScope>(ids);
-
-            foreach (var scope in storedScopes.Where(x => x != null))
+            using (s.Advanced.DocumentStore.AggressivelyCache())
             {
-                result.Add(Data.StoredScope.FromDbFormat(scope));
-            }
+                var ids = from scopeName in scopeNames select "scopes/" + scopeName;
+                var storedScopes = s.Load<Data.StoredScope>(ids);
 
-            return Task.FromResult((IEnumerable<Scope>)result);
+                foreach (var scope in storedScopes.Where(x => x != null))
+                {
+                    result.Add(Data.StoredScope.FromDbFormat(scope));
+                }
+
+                return Task.FromResult((IEnumerable<Scope>) result);
+            }
         }
 
         public Task<IEnumerable<Scope>> GetScopesAsync(bool publicOnly = true)
         {
             var result = new List<Scope>();
 
-            var loadedScopes = s.Advanced.LoadStartingWith<Data.StoredScope>("scopes/", pageSize: int.MaxValue);
-
-            foreach (var thisOne in loadedScopes)
+            using (s.Advanced.DocumentStore.AggressivelyCache())
             {
-                if (publicOnly == false || thisOne.ShowInDiscoveryDocument)
-                {
-                    result.Add(Data.StoredScope.FromDbFormat(thisOne));
-                }
-            }
+                var loadedScopes = s.Advanced.LoadStartingWith<Data.StoredScope>("scopes/", pageSize: int.MaxValue);
 
-            return Task.FromResult((IEnumerable<Scope>)result);
+                foreach (var thisOne in loadedScopes)
+                {
+                    if (publicOnly == false || thisOne.ShowInDiscoveryDocument)
+                    {
+                        result.Add(Data.StoredScope.FromDbFormat(thisOne));
+                    }
+                }
+
+                return Task.FromResult((IEnumerable<Scope>) result);
+            }
         }
     }
 }
