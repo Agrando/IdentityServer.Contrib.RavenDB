@@ -35,8 +35,6 @@ namespace Identityserver.Contrib.RavenDB
             if (loaded == null)
                 return null;
 
-            var client = s.Load<Data.StoredClient>("clients/" + loaded.ClientId);
-
             return await Data.StoredRefreshToken.FromDbFormat(loaded, _clientStore);
         }
 
