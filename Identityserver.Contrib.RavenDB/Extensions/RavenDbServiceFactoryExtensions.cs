@@ -51,7 +51,7 @@ namespace IdentityServer3.Core.Configuration
             if (factory == null) throw new ArgumentNullException("factory");
             if (options == null) throw new ArgumentNullException("options");
 
-            factory.Register(new Registration<IDocumentStore>(options.Store));            
+            factory.Register(new Registration<IDocumentStore>(options.Store));
         }
 
         public static void RegisterConfigurationServices(this IdentityServerServiceFactory factory, RavenDbServiceOptions options, TimeSpan? replicationWaitingTime = null)
@@ -71,7 +71,7 @@ namespace IdentityServer3.Core.Configuration
 
             factory.Register(new Registration<IDocumentStore>(options.Store));
             factory.Register(new Registration<SessionWrapper>(c => new SessionWrapper(options.Store.OpenSession())) { Mode = RegistrationMode.InstancePerHttpRequest });
-            factory.Register(new Registration<IAsyncDocumentSession>(x => x.Resolve<IDocumentStore>().OpenAsyncSession()) {Mode = RegistrationMode.InstancePerHttpRequest});
+            factory.Register(new Registration<IAsyncDocumentSession>(x => x.Resolve<IDocumentStore>().OpenAsyncSession()) { Mode = RegistrationMode.InstancePerHttpRequest });
             factory.ClientStore = new Registration<IClientStore, ClientStore>();
             factory.CorsPolicyService = new ClientConfigurationCorsPolicyRegistration(options);
         }

@@ -30,7 +30,9 @@ namespace Identityserver.Contrib.RavenDB
 
         public Task<AuthorizationCode> GetAsync(string key)
         {
-            var loaded = s.Load<Data.StoredAuthorizationCode>("authorizationcodes/" + key);
+            var loaded = s
+                .Include<Data.StoredAuthorizationCode, Data.StoredScope>(sac => sac.RequestedScopes)
+                .Load<Data.StoredAuthorizationCode>("authorizationcodes/" + key);
             if (loaded == null)
                 return null;
 
@@ -50,7 +52,10 @@ namespace Identityserver.Contrib.RavenDB
         {
             var result = new List<AuthorizationCode>();
 
-            var q = s.Query<Data.StoredAuthorizationCode, Indexes.AuthorizationCodeIndex>().Where(x => x.SubjectId == subject);
+            var q = s.Query<Data.StoredAuthorizationCode, Indexes.AuthorizationCodeIndex>()
+                .Include<Data.StoredAuthorizationCode, Data.StoredClient>(x => x.ClientId)
+                .Include<Data.StoredAuthorizationCode, Data.StoredScope>(x => x.RequestedScopes)
+                .Where(x => x.SubjectId == subject);
             var loaded = q.ToList();
 
             var clients = s.Load<Data.StoredClient>(from l in loaded select l.ClientId);

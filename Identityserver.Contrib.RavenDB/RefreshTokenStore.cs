@@ -30,7 +30,7 @@ namespace Identityserver.Contrib.RavenDB
 
         public Task<RefreshToken> GetAsync(string key)
         {
-            var loaded = s.Load<Data.StoredRefreshToken>("refreshtokens/" + key);
+            var loaded = s.Include<Data.StoredRefreshToken, Data.StoredClient>(x => x.ClientId).Load<Data.StoredRefreshToken>("refreshtokens/" + key);
             if (loaded == null)
                 return null;
 
@@ -49,13 +49,12 @@ namespace Identityserver.Contrib.RavenDB
         {
             var result = new List<ITokenMetadata>();
 
-            var q = s.Query<Data.StoredRefreshToken, Indexes.RefreshTokenIndex>().Where(x => x.SubjectId == subject);
+            var q = s.Query<Data.StoredRefreshToken, Indexes.RefreshTokenIndex>().Include<Data.StoredRefreshToken, Data.StoredClient>(rt => rt.ClientId).Where(x => x.SubjectId == subject);
             var loaded = q.ToList();
-            var clients = s.Load<Data.StoredClient>(from l in loaded select "clients/" + l.ClientId);
 
             foreach (var thisOne in loaded)
             {
-                result.Add(Data.StoredRefreshToken.FromDbFormat(thisOne, clients["clients/" + thisOne.ClientId]));
+                result.Add(Data.StoredRefreshToken.FromDbFormat(thisOne, s.Load<Data.StoredClient>("clients/" + thisOne.ClientId)));
             }
 
             return Task.FromResult(result.Cast<ITokenMetadata>());
