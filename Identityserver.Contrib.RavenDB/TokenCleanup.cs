@@ -54,7 +54,7 @@ namespace Identityserver.Contrib.RavenDB
 
                 try
                 {
-                    await Task.Delay(interval, cancellationToken);
+                    await Task.Delay(interval, cancellationToken).ConfigureAwait(false);
                 }
                 catch
                 {
@@ -68,7 +68,7 @@ namespace Identityserver.Contrib.RavenDB
                     break;
                 }
 
-                await ClearTokens();
+                await ClearTokens().ConfigureAwait(false);
             }
         }
 
@@ -85,7 +85,7 @@ namespace Identityserver.Contrib.RavenDB
                     }, new BulkOperationOptions
                     {
                         AllowStale = true
-                    });
+                    }).ConfigureAwait(false);
             }
             catch (Exception ex)
             {

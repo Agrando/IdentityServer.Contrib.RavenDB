@@ -36,7 +36,7 @@ namespace Identityserver.Contrib.RavenDB
             if (loaded == null)
                 return null;
 
-            return await Data.StoredAuthorizationCode.FromDbFormat(loaded, _clientStore, _scopeStore);
+            return await Data.StoredAuthorizationCode.FromDbFormat(loaded, _clientStore, _scopeStore).ConfigureAwait(false);
         }
 
         public Task RemoveAsync(string key)
@@ -54,7 +54,7 @@ namespace Identityserver.Contrib.RavenDB
 
             foreach (var thisOne in loaded)
             {
-                result.Add(await Data.StoredAuthorizationCode.FromDbFormat(thisOne, _clientStore, _scopeStore));
+                result.Add(await Data.StoredAuthorizationCode.FromDbFormat(thisOne, _clientStore, _scopeStore).ConfigureAwait(false));
             }
 
             return result;

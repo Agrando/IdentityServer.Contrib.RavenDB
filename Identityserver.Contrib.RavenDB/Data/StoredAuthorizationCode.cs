@@ -79,11 +79,11 @@ namespace Identityserver.Contrib.RavenDB.Data
                 RedirectUri = code.RedirectUri,
                 WasConsentShown = code.WasConsentShown,
                 Nonce = code.Nonce,
-                Client = await clientStore.FindClientByIdAsync(code.Client),
+                Client = await clientStore.FindClientByIdAsync(code.Client).ConfigureAwait(false),
                 CodeChallenge = code.CodeChallenge,
                 CodeChallengeMethod = code.CodeChallengeMethod,
                 SessionId = code.SessionId,
-                RequestedScopes = await scopeStore.FindScopesAsync(code.RequestedScopes)
+                RequestedScopes = await scopeStore.FindScopesAsync(code.RequestedScopes).ConfigureAwait(false)
             };
 
             var claimsPrinciple = new ClaimsPrincipal();

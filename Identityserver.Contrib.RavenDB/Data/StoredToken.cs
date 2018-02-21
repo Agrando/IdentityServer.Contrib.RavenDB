@@ -58,7 +58,7 @@ namespace Identityserver.Contrib.RavenDB.Data
             return new Token
             {
                 Audience = token.Audience,
-                Client = await clientStore.FindClientByIdAsync(token.Client),
+                Client = await clientStore.FindClientByIdAsync(token.Client).ConfigureAwait(false),
                 Type = token.Type,
                 CreationTime = token.CreationTime,
                 Issuer = token.Issuer,

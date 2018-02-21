@@ -78,7 +78,7 @@ namespace Identityserver.Contrib.RavenDB.Services
                 if (loaded == null)
                     return new IdentityAdminResult<ScopeDetail>("Scope not found");
 
-                var metadata = await GetMetadataAsync();
+                var metadata = await GetMetadataAsync().ConfigureAwait(false);
                 var props = from prop in metadata.ScopeMetaData.UpdateProperties
                             select new PropertyValue
                             {

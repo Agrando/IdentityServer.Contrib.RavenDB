@@ -35,7 +35,7 @@ namespace Identityserver.Contrib.RavenDB
             if (loaded == null)
                 return null;
 
-            return await Data.StoredRefreshToken.FromDbFormat(loaded, _clientStore);
+            return await Data.StoredRefreshToken.FromDbFormat(loaded, _clientStore).ConfigureAwait(false);
         }
 
         public Task RemoveAsync(string key)
@@ -53,7 +53,7 @@ namespace Identityserver.Contrib.RavenDB
 
             foreach (var thisOne in loaded)
             {
-                result.Add(await Data.StoredRefreshToken.FromDbFormat(thisOne, _clientStore));
+                result.Add(await Data.StoredRefreshToken.FromDbFormat(thisOne, _clientStore).ConfigureAwait(false));
             }
 
             return result;

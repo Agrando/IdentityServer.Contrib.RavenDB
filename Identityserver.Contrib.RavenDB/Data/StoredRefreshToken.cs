@@ -57,7 +57,7 @@ namespace Identityserver.Contrib.RavenDB.Data
                 LifeTime = token.LifeTime,
                 Version = token.Version,
                 Subject = new ClaimsPrincipal(new ClaimsIdentity((from c in token.Claims select StoredRefreshTokenClaim.FromDbFormat(c)).ToList())),
-                AccessToken = await Data.StoredToken.FromDbFormat(token.AccessToken, clientStore)
+                AccessToken = await Data.StoredToken.FromDbFormat(token.AccessToken, clientStore).ConfigureAwait(false)
             };
         }
     }
